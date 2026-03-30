@@ -7,7 +7,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(false);
 
   return (
-    <>
+    <div style={{ width: "100%", minHeight: "100vh" }}>
       {page === "home" && (
         <Home
           darkMode={darkMode}
@@ -21,7 +21,7 @@ function App() {
           onBack={() => setPage("home")}
         />
       )}
-    </>
+    </div>
   );
 }
 

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 
-function Login({ darkMode }) {
+function Login({ darkMode, onBack }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
 
   const theme = {
     background: darkMode ? "#0f172a" : "#f8fafc",
@@ -76,10 +78,24 @@ function Login({ darkMode }) {
       cursor: "pointer",
       fontWeight: "bold",
     },
+    toggleRow: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: "6px",
+      marginTop: "20px",
+      fontSize: "14px",
+      color: darkMode ? "#94a3b8" : "#64748b",
+    },
+    toggleLink: {
+      color: theme.primary,
+      cursor: "pointer",
+      fontWeight: "600",
+    },
     backLink: {
       display: "block",
       textAlign: "center",
-      marginTop: "20px",
+      marginTop: "14px",
       fontSize: "14px",
       color: theme.primary,
       cursor: "pointer",
@@ -88,16 +104,37 @@ function Login({ darkMode }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`Logged in as ${email}`);
+    if (isSignUp) {
+      alert(`Account created for ${name} (${email})`);
+    } else {
+      alert(`Logged in as ${email}`);
+    }
   };
 
   return (
     <div style={styles.page}>
       <div style={styles.card}>
-        <h2 style={styles.title}>Welcome Back</h2>
-        <p style={styles.subtitle}>Login to your Prime account</p>
+        <h2 style={styles.title}>{isSignUp ? "Create Account" : "Welcome Back"}</h2>
+        <p style={styles.subtitle}>
+          {isSignUp ? "Sign up for a Prime account" : "Login to your Prime account"}
+        </p>
 
         <form onSubmit={handleSubmit}>
+          {/* Name field only for Sign Up */}
+          {isSignUp && (
+            <>
+              <label style={styles.label}>Full Name</label>
+              <input
+                style={styles.input}
+                type="text"
+                placeholder="John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </>
+          )}
+
           <label style={styles.label}>Email</label>
           <input
             style={styles.input}
@@ -119,9 +156,29 @@ function Login({ darkMode }) {
           />
 
           <button style={styles.button} type="submit">
-            Login
+            {isSignUp ? "Sign Up" : "Login"}
           </button>
         </form>
+
+        {/* Toggle between Login and Sign Up */}
+        <div style={styles.toggleRow}>
+          {isSignUp ? "Already have an account?" : "Don't have an account?"}
+          <span
+            style={styles.toggleLink}
+            onClick={() => {
+              setIsSignUp(!isSignUp);
+              setEmail("");
+              setPassword("");
+              setName("");
+            }}
+          >
+            {isSignUp ? "Login" : "Sign Up"}
+          </span>
+        </div>
+
+        <span style={styles.backLink} onClick={onBack}>
+          ← Back to Home
+        </span>
       </div>
     </div>
   );
