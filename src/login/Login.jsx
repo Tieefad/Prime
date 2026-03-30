@@ -5,6 +5,9 @@ function Login({ darkMode, onBack }) {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
+  const [btnHover, setBtnHover] = useState(false);
+  const [linkHover, setLinkHover] = useState(false);
+  const [backHover, setBackHover] = useState(false);
 
   const theme = {
     background: darkMode ? "#0f172a" : "#f8fafc",
@@ -35,6 +38,7 @@ function Login({ darkMode, onBack }) {
       boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
       width: "100%",
       maxWidth: "400px",
+      transition: "all 0.3s ease",
     },
     title: {
       fontSize: "28px",
@@ -42,6 +46,7 @@ function Login({ darkMode, onBack }) {
       marginBottom: "8px",
       textAlign: "center",
       color: theme.primary,
+      transition: "all 0.3s ease",
     },
     subtitle: {
       fontSize: "14px",
@@ -66,17 +71,25 @@ function Login({ darkMode, onBack }) {
       marginBottom: "20px",
       boxSizing: "border-box",
       outline: "none",
+      transition: "border 0.3s ease, box-shadow 0.3s ease",
     },
     button: {
       width: "100%",
       padding: "12px",
       border: "none",
       borderRadius: "25px",
-      background: theme.primary,
+      background: btnHover
+        ? "linear-gradient(135deg, #0ea5e9, #6366f1)"
+        : "linear-gradient(135deg, #4facfe, #00f2fe)",
       color: "#fff",
       fontSize: "16px",
       cursor: "pointer",
       fontWeight: "bold",
+      boxShadow: btnHover
+        ? "0 8px 25px rgba(79,172,254,0.6)"
+        : "0 4px 15px rgba(79,172,254,0.3)",
+      transform: btnHover ? "translateY(-3px) scale(1.02)" : "translateY(0) scale(1)",
+      transition: "all 0.3s ease",
     },
     toggleRow: {
       display: "flex",
@@ -90,7 +103,13 @@ function Login({ darkMode, onBack }) {
     toggleLink: {
       color: theme.primary,
       cursor: "pointer",
-      fontWeight: "600",
+      fontWeight: "700",
+      fontSize: "15px",
+      textDecoration: linkHover ? "underline" : "none",
+      transform: linkHover ? "scale(1.1)" : "scale(1)",
+      display: "inline-block",
+      transition: "all 0.2s ease",
+      letterSpacing: linkHover ? "0.5px" : "0px",
     },
     backLink: {
       display: "block",
@@ -99,6 +118,10 @@ function Login({ darkMode, onBack }) {
       fontSize: "14px",
       color: theme.primary,
       cursor: "pointer",
+      fontWeight: "600",
+      transform: backHover ? "translateX(-5px)" : "translateX(0)",
+      transition: "all 0.2s ease",
+      opacity: backHover ? 0.8 : 1,
     },
   };
 
@@ -111,16 +134,26 @@ function Login({ darkMode, onBack }) {
     }
   };
 
+  const handleToggle = () => {
+    setIsSignUp(!isSignUp);
+    setEmail("");
+    setPassword("");
+    setName("");
+  };
+
   return (
     <div style={styles.page}>
       <div style={styles.card}>
-        <h2 style={styles.title}>{isSignUp ? "Create Account" : "Welcome Back"}</h2>
+        <h2 style={styles.title}>
+          {isSignUp ? "Create Account" : "Welcome Back"}
+        </h2>
         <p style={styles.subtitle}>
-          {isSignUp ? "Sign up for a Prime account" : "Login to your Prime account"}
+          {isSignUp
+            ? "Sign up for a Prime account"
+            : "Login to your Prime account"}
         </p>
 
         <form onSubmit={handleSubmit}>
-          {/* Name field only for Sign Up */}
           {isSignUp && (
             <>
               <label style={styles.label}>Full Name</label>
@@ -155,28 +188,34 @@ function Login({ darkMode, onBack }) {
             required
           />
 
-          <button style={styles.button} type="submit">
+          <button
+            style={styles.button}
+            type="submit"
+            onMouseEnter={() => setBtnHover(true)}
+            onMouseLeave={() => setBtnHover(false)}
+          >
             {isSignUp ? "Sign Up" : "Login"}
           </button>
         </form>
 
-        {/* Toggle between Login and Sign Up */}
         <div style={styles.toggleRow}>
           {isSignUp ? "Already have an account?" : "Don't have an account?"}
           <span
             style={styles.toggleLink}
-            onClick={() => {
-              setIsSignUp(!isSignUp);
-              setEmail("");
-              setPassword("");
-              setName("");
-            }}
+            onClick={handleToggle}
+            onMouseEnter={() => setLinkHover(true)}
+            onMouseLeave={() => setLinkHover(false)}
           >
             {isSignUp ? "Login" : "Sign Up"}
           </span>
         </div>
 
-        <span style={styles.backLink} onClick={onBack}>
+        <span
+          style={styles.backLink}
+          onClick={onBack}
+          onMouseEnter={() => setBackHover(true)}
+          onMouseLeave={() => setBackHover(false)}
+        >
           ← Back to Home
         </span>
       </div>
