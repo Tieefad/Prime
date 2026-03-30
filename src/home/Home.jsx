@@ -3,6 +3,7 @@ import React, { useState } from "react";
 function Home({ darkMode, setDarkMode, onGetStarted }) {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [btnHover, setBtnHover] = useState(false);
+  const [toggleHover, setToggleHover] = useState(false);
 
   const theme = {
     background: darkMode ? "#0f172a" : "#f8fafc",
@@ -47,12 +48,24 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
       fontSize: "15px",
     },
     toggleBtn: {
-      padding: "6px 12px",
-      borderRadius: "20px",
+      width: "42px",
+      height: "42px",
+      borderRadius: "50%",
       border: "none",
       cursor: "pointer",
-      background: theme.primary,
+      background: toggleHover
+        ? "linear-gradient(135deg, #0ea5e9, #6366f1)"
+        : "linear-gradient(135deg, #4facfe, #00f2fe)",
       color: "#fff",
+      fontSize: "20px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      boxShadow: toggleHover
+        ? "0 6px 20px rgba(79,172,254,0.6)"
+        : "0 4px 12px rgba(79,172,254,0.4)",
+      transform: toggleHover ? "scale(1.15) rotate(20deg)" : "scale(1) rotate(0deg)",
+      transition: "all 0.3s ease",
     },
 
     hero: {
@@ -90,7 +103,9 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
       boxShadow: btnHover
         ? "0 8px 25px rgba(79,172,254,0.6)"
         : "0 4px 15px rgba(79,172,254,0.3)",
-      transform: btnHover ? "translateY(-3px) scale(1.05)" : "translateY(0) scale(1)",
+      transform: btnHover
+        ? "translateY(-3px) scale(1.05)"
+        : "translateY(0) scale(1)",
       transition: "all 0.3s ease",
     },
 
@@ -114,20 +129,28 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
   };
 
   const getCardStyle = (index) => ({
-    background: hoveredCard === index
-      ? darkMode
-        ? "linear-gradient(135deg, #1e3a5f, #1e293b)"
-        : "linear-gradient(135deg, #e0f2fe, #ffffff)"
-      : theme.card,
+    background:
+      hoveredCard === index
+        ? darkMode
+          ? "linear-gradient(135deg, #1e3a5f, #1e293b)"
+          : "linear-gradient(135deg, #e0f2fe, #ffffff)"
+        : theme.card,
     padding: "30px 25px",
     borderRadius: "16px",
-    boxShadow: hoveredCard === index
-      ? "0 20px 40px rgba(79,172,254,0.3)"
-      : "0 5px 15px rgba(0,0,0,0.1)",
-    transform: hoveredCard === index ? "translateY(-10px) scale(1.03)" : "translateY(0) scale(1)",
+    boxShadow:
+      hoveredCard === index
+        ? "0 20px 40px rgba(79,172,254,0.3)"
+        : "0 5px 15px rgba(0,0,0,0.1)",
+    transform:
+      hoveredCard === index
+        ? "translateY(-10px) scale(1.03)"
+        : "translateY(0) scale(1)",
     transition: "all 0.35s ease",
     cursor: "pointer",
-    borderTop: hoveredCard === index ? "3px solid #4facfe" : "3px solid transparent",
+    borderTop:
+      hoveredCard === index
+        ? "3px solid #4facfe"
+        : "3px solid transparent",
   });
 
   const features = [
@@ -160,8 +183,10 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
           <button
             style={styles.toggleBtn}
             onClick={() => setDarkMode(!darkMode)}
+            onMouseEnter={() => setToggleHover(true)}
+            onMouseLeave={() => setToggleHover(false)}
           >
-            {darkMode ? "Light" : "Dark"}
+            {darkMode ? "☀️" : "🌙"}
           </button>
         </div>
       </nav>
@@ -194,7 +219,9 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
               onMouseEnter={() => setHoveredCard(i)}
               onMouseLeave={() => setHoveredCard(null)}
             >
-              <div style={{ fontSize: "36px", marginBottom: "12px" }}>{f.icon}</div>
+              <div style={{ fontSize: "36px", marginBottom: "12px" }}>
+                {f.icon}
+              </div>
               <h3 style={{ marginBottom: "10px" }}>{f.title}</h3>
               <p>{f.desc}</p>
             </div>
