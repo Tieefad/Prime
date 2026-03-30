@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Sun, Moon } from "lucide-react";
 
 function Home({ darkMode, setDarkMode, onGetStarted }) {
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -21,7 +22,6 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
       display: "flex",
       flexDirection: "column",
     },
-
     navbar: {
       display: "flex",
       justifyContent: "space-between",
@@ -51,23 +51,24 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
       width: "42px",
       height: "42px",
       borderRadius: "50%",
-      border: "none",
+      border: `2px solid ${darkMode ? "#334155" : "#e2e8f0"}`,
       cursor: "pointer",
-      background: toggleHover
-        ? "linear-gradient(135deg, #0ea5e9, #6366f1)"
-        : "linear-gradient(135deg, #4facfe, #00f2fe)",
-      color: "#fff",
+      background: darkMode ? "#1e293b" : "#f1f5f9",
+      color: darkMode ? "#fbbf24" : "#6366f1",
       fontSize: "20px",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       boxShadow: toggleHover
-        ? "0 6px 20px rgba(79,172,254,0.6)"
-        : "0 4px 12px rgba(79,172,254,0.4)",
-      transform: toggleHover ? "scale(1.15) rotate(20deg)" : "scale(1) rotate(0deg)",
+        ? darkMode
+          ? "0 0 15px rgba(251,191,36,0.4)"
+          : "0 0 15px rgba(99,102,241,0.4)"
+        : "0 2px 8px rgba(0,0,0,0.1)",
+      transform: toggleHover
+        ? "scale(1.1) rotate(15deg)"
+        : "scale(1) rotate(0deg)",
       transition: "all 0.3s ease",
     },
-
     hero: {
       flex: 1,
       display: "flex",
@@ -108,7 +109,6 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
         : "translateY(0) scale(1)",
       transition: "all 0.3s ease",
     },
-
     section: {
       padding: "60px 20px",
       textAlign: "center",
@@ -119,7 +119,6 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
       gap: "20px",
       marginTop: "30px",
     },
-
     footer: {
       background: theme.card,
       textAlign: "center",
@@ -185,8 +184,13 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
             onClick={() => setDarkMode(!darkMode)}
             onMouseEnter={() => setToggleHover(true)}
             onMouseLeave={() => setToggleHover(false)}
+            title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
-            {darkMode ? "☀️" : "🌙"}
+            {darkMode ? (
+              <Sun size={18} strokeWidth={2} />
+            ) : (
+              <Moon size={18} strokeWidth={2} />
+            )}
           </button>
         </div>
       </nav>
