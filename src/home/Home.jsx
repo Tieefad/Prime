@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 
-function Home() {
-  const [darkMode, setDarkMode] = useState(false);
-
+function Home({ darkMode, setDarkMode, onGetStarted }) {
   const theme = {
     background: darkMode ? "#0f172a" : "#f8fafc",
     text: darkMode ? "#f1f5f9" : "#0f172a",
@@ -124,7 +122,6 @@ function Home() {
           <span style={styles.link}>Home</span>
           <span style={styles.link}>About</span>
           <span style={styles.link}>Contact</span>
-         
 
           <button
             style={styles.toggleBtn}
@@ -142,7 +139,9 @@ function Home() {
           A modern, fast, and scalable React application with clean UI and
           powerful features.
         </p>
-        <button style={styles.button}>Get Started</button>
+        <button style={styles.button} onClick={onGetStarted}>
+          Get Started
+        </button>
       </section>
 
       {/* Features Section */}
