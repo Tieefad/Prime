@@ -8,6 +8,8 @@ function Login({ darkMode, onBack }) {
   const [btnHover, setBtnHover] = useState(false);
   const [linkHover, setLinkHover] = useState(false);
   const [backHover, setBackHover] = useState(false);
+  const [focusedInput, setFocusedInput] = useState(null);
+  const [hoveredInput, setHoveredInput] = useState(null);
 
   const theme = {
     background: darkMode ? "#0f172a" : "#f8fafc",
@@ -20,7 +22,7 @@ function Login({ darkMode, onBack }) {
 
   const styles = {
     page: {
-      fontFamily: "Arial, sans-serif",
+      fontFamily: "'Segoe UI', Arial, sans-serif",
       background: darkMode
         ? "linear-gradient(135deg, #020617, #0f172a)"
         : "linear-gradient(135deg, #e0f2fe, #f0f9ff)",
@@ -34,19 +36,20 @@ function Login({ darkMode, onBack }) {
     card: {
       background: theme.card,
       padding: "40px",
-      borderRadius: "16px",
-      boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+      borderRadius: "20px",
+      boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
       width: "100%",
-      maxWidth: "400px",
+      maxWidth: "420px",
       transition: "all 0.3s ease",
     },
     title: {
       fontSize: "28px",
-      fontWeight: "bold",
+      fontWeight: "800",
       marginBottom: "8px",
       textAlign: "center",
-      color: theme.primary,
-      transition: "all 0.3s ease",
+      background: "linear-gradient(135deg, #4facfe, #a78bfa)",
+      WebkitBackgroundClip: "text",
+      WebkitTextFillColor: "transparent",
     },
     subtitle: {
       fontSize: "14px",
@@ -56,39 +59,31 @@ function Login({ darkMode, onBack }) {
     },
     label: {
       display: "block",
-      fontSize: "14px",
+      fontSize: "13px",
       marginBottom: "6px",
-      fontWeight: "600",
-    },
-    input: {
-      width: "100%",
-      padding: "10px 14px",
-      borderRadius: "8px",
-      border: `1px solid ${theme.border}`,
-      background: theme.input,
-      color: theme.text,
-      fontSize: "15px",
-      marginBottom: "20px",
-      boxSizing: "border-box",
-      outline: "none",
-      transition: "border 0.3s ease, box-shadow 0.3s ease",
+      fontWeight: "700",
+      color: darkMode ? "#94a3b8" : "#64748b",
+      letterSpacing: "0.5px",
+      textTransform: "uppercase",
     },
     button: {
       width: "100%",
-      padding: "12px",
+      padding: "13px",
       border: "none",
-      borderRadius: "25px",
+      borderRadius: "999px",
       background: btnHover
-        ? "linear-gradient(135deg, #0ea5e9, #6366f1)"
-        : "linear-gradient(135deg, #4facfe, #00f2fe)",
+        ? "linear-gradient(135deg, #0ea5e9, #8b5cf6)"
+        : "linear-gradient(135deg, #4facfe, #a78bfa)",
       color: "#fff",
       fontSize: "16px",
       cursor: "pointer",
-      fontWeight: "bold",
+      fontWeight: "700",
       boxShadow: btnHover
         ? "0 8px 25px rgba(79,172,254,0.6)"
         : "0 4px 15px rgba(79,172,254,0.3)",
-      transform: btnHover ? "translateY(-3px) scale(1.02)" : "translateY(0) scale(1)",
+      transform: btnHover
+        ? "translateY(-3px) scale(1.02)"
+        : "translateY(0) scale(1)",
       transition: "all 0.3s ease",
     },
     toggleRow: {
@@ -125,6 +120,32 @@ function Login({ darkMode, onBack }) {
     },
   };
 
+  const getInputStyle = (name) => ({
+    width: "100%",
+    padding: "11px 14px",
+    borderRadius: "10px",
+    border: focusedInput === name || hoveredInput === name
+      ? "1.5px solid #4facfe"
+      : `1.5px solid ${theme.border}`,
+    background: theme.input,
+    color: theme.text,
+    fontSize: "15px",
+    marginBottom: "20px",
+    boxSizing: "border-box",
+    outline: "none",
+    boxShadow: focusedInput === name
+      ? "0 0 0 3px rgba(79,172,254,0.2), 0 4px 12px rgba(79,172,254,0.15)"
+      : hoveredInput === name
+      ? "0 8px 25px rgba(79,172,254,0.3)"
+      : "none",
+    transform: focusedInput === name
+      ? "translateY(-3px) scale(1.01)"
+      : hoveredInput === name
+      ? "translateY(-2px) scale(1.01)"
+      : "translateY(0) scale(1)",
+    transition: "all 0.3s ease",
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isSignUp) {
@@ -144,13 +165,14 @@ function Login({ darkMode, onBack }) {
   return (
     <div style={styles.page}>
       <div style={styles.card}>
+
         <h2 style={styles.title}>
           {isSignUp ? "Create Account" : "Welcome Back"}
         </h2>
         <p style={styles.subtitle}>
           {isSignUp
-            ? "Sign up for a Prime account"
-            : "Login to your Prime account"}
+            ? "Sign up for a PrimePass account"
+            : "Login to your PrimePass account"}
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -158,11 +180,15 @@ function Login({ darkMode, onBack }) {
             <>
               <label style={styles.label}>Full Name</label>
               <input
-                style={styles.input}
+                style={getInputStyle("name")}
                 type="text"
                 placeholder="John Doe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                onFocus={() => setFocusedInput("name")}
+                onBlur={() => setFocusedInput(null)}
+                onMouseEnter={() => setHoveredInput("name")}
+                onMouseLeave={() => setHoveredInput(null)}
                 required
               />
             </>
@@ -170,21 +196,29 @@ function Login({ darkMode, onBack }) {
 
           <label style={styles.label}>Email</label>
           <input
-            style={styles.input}
+            style={getInputStyle("email")}
             type="email"
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onFocus={() => setFocusedInput("email")}
+            onBlur={() => setFocusedInput(null)}
+            onMouseEnter={() => setHoveredInput("email")}
+            onMouseLeave={() => setHoveredInput(null)}
             required
           />
 
           <label style={styles.label}>Password</label>
           <input
-            style={styles.input}
+            style={getInputStyle("password")}
             type="password"
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onFocus={() => setFocusedInput("password")}
+            onBlur={() => setFocusedInput(null)}
+            onMouseEnter={() => setHoveredInput("password")}
+            onMouseLeave={() => setHoveredInput(null)}
             required
           />
 
@@ -194,7 +228,7 @@ function Login({ darkMode, onBack }) {
             onMouseEnter={() => setBtnHover(true)}
             onMouseLeave={() => setBtnHover(false)}
           >
-            {isSignUp ? "Sign Up" : "Login"}
+            {isSignUp ? "Create Account" : "Login"}
           </button>
         </form>
 
@@ -218,6 +252,7 @@ function Login({ darkMode, onBack }) {
         >
           ← Back to Home
         </span>
+
       </div>
     </div>
   );
