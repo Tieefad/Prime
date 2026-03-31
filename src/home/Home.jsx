@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Sun, Moon, Ticket, MapPin, Calendar, ChevronRight, Star } from "lucide-react";
 
-function Home({ darkMode, setDarkMode, onGetStarted }) {
+function Home({ darkMode, setDarkMode, onGetStarted, onNavigate }) {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [btnHover, setBtnHover] = useState(false);
   const [toggleHover, setToggleHover] = useState(false);
@@ -124,6 +124,7 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
       display: "flex",
       alignItems: "center",
       gap: "8px",
+      cursor: "pointer",
     },
     logoIcon: {
       color: theme.primary,
@@ -339,7 +340,7 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
 
       {/* NAVBAR */}
       <nav style={styles.navbar}>
-        <div style={styles.logoWrap}>
+        <div style={styles.logoWrap} onClick={() => onNavigate("home")}>
           <Ticket size={22} style={styles.logoIcon} />
           <span style={styles.logoText}>PrimePass</span>
         </div>
@@ -350,6 +351,7 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
               style={getNavLinkStyle(i)}
               onMouseEnter={() => setHoveredNavLink(i)}
               onMouseLeave={() => setHoveredNavLink(null)}
+              onClick={() => onNavigate(l.toLowerCase())}
             >
               {l}
             </span>
@@ -440,6 +442,7 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
               }}
               onMouseEnter={() => setHoveredCat(i)}
               onMouseLeave={() => setHoveredCat(null)}
+              onClick={() => onNavigate(c.label.toLowerCase())}
             >
               {c.icon} {c.label}
             </div>
@@ -451,7 +454,10 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
       <section style={styles.section}>
         <div style={styles.sectionHeader}>
           <span style={styles.sectionTitle}>🔥 Trending in Dhaka</span>
-          <span style={styles.seeAll}>
+          <span
+            style={styles.seeAll}
+            onClick={() => onNavigate("events")}
+          >
             See all <ChevronRight size={14} />
           </span>
         </div>
@@ -594,6 +600,7 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
                 }}
                 onMouseEnter={() => setHoveredFooterLink(i)}
                 onMouseLeave={() => setHoveredFooterLink(null)}
+                onClick={() => onNavigate(l.toLowerCase())}
               >
                 {hoveredFooterLink === i && (
                   <ChevronRight size={13} color="#4facfe" />

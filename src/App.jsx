@@ -1,6 +1,10 @@
 import { useState } from "react";
 import Home from "./home/Home";
 import Login from "./login/Login";
+import Events from "./components/Events";
+import Movies from "./components/Movies";
+import Sports from "./components/Sports";
+import Concerts from "./components/Concerts";
 
 function App() {
   const [page, setPage] = useState("home");
@@ -13,12 +17,41 @@ function App() {
           darkMode={darkMode}
           setDarkMode={setDarkMode}
           onGetStarted={() => setPage("login")}
+          onNavigate={(p) => setPage(p)}
         />
       )}
       {page === "login" && (
         <Login
           darkMode={darkMode}
           onBack={() => setPage("home")}
+        />
+      )}
+      {page === "events" && (
+        <Events
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          onNavigate={(p) => setPage(p)}
+        />
+      )}
+      {page === "movies" && (
+        <Movies
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          onNavigate={(p) => setPage(p)}
+        />
+      )}
+      {page === "sports" && (
+        <Sports
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          onNavigate={(p) => setPage(p)}
+        />
+      )}
+      {page === "concerts" && (
+        <Concerts
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          onNavigate={(p) => setPage(p)}
         />
       )}
     </div>
