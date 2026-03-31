@@ -26,7 +26,7 @@ function Concerts({ darkMode, setDarkMode, onNavigate }) {
     { id: 6, title: "Fuad & Friends Live Night", location: "Navana Tower, Gulshan", date: "25 Mar 2026", price: "৳ 750", rating: 4.7, badge: "🎵 Pop", color: "#ec4899" },
   ];
 
-  const navLinks = ["Events", "Movies", "Sports", "Concerts"];
+  const navLinks = ["Home", "Events", "Movies", "Sports", "Concerts"];
 
   const getNavLinkStyle = (index) => ({
     cursor: "pointer", fontSize: "15px", fontWeight: "600",
@@ -92,9 +92,35 @@ function Concerts({ darkMode, setDarkMode, onNavigate }) {
         </div>
       </nav>
 
+      {/* BACK BUTTON */}
+      <div style={{ padding: "16px 40px", background: theme.background }}>
+        <button
+          onClick={() => onNavigate("home")}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: "6px",
+            background: "none", border: `1.5px solid ${theme.cardBorder}`,
+            borderRadius: "999px", padding: "7px 18px",
+            color: theme.subtext, fontSize: "14px", fontWeight: "600",
+            cursor: "pointer", transition: "all 0.25s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "#4facfe";
+            e.currentTarget.style.borderColor = "#4facfe";
+            e.currentTarget.style.transform = "translateX(-3px)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = theme.subtext;
+            e.currentTarget.style.borderColor = theme.cardBorder;
+            e.currentTarget.style.transform = "translateX(0)";
+          }}
+        >
+          ← Back to Home
+        </button>
+      </div>
+
       {/* HERO */}
       <div style={{
-        padding: "60px 40px 40px", textAlign: "center",
+        padding: "40px 40px 40px", textAlign: "center",
         background: darkMode ? "linear-gradient(135deg, #0a0f1e, #0f172a, #1a1040)" : "linear-gradient(135deg, #e0f2fe, #f0f9ff, #ede9fe)",
       }}>
         <div style={{
@@ -139,7 +165,6 @@ function Concerts({ darkMode, setDarkMode, onNavigate }) {
           ))}
         </div>
       </div>
-
     </div>
   );
 }

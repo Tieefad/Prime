@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sun, Moon, Ticket, MapPin, Calendar, ChevronRight, Star } from "lucide-react";
+import { Sun, Moon, Ticket, MapPin, Calendar, Star } from "lucide-react";
 
 function Movies({ darkMode, setDarkMode, onNavigate }) {
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -26,7 +26,7 @@ function Movies({ darkMode, setDarkMode, onNavigate }) {
     { id: 6, title: "Shonibar Bikel", location: "Minster Cineplex, Gulshan", date: "Now Showing", price: "৳ 280", rating: 4.7, badge: "🎬 Drama", color: "#f59e0b" },
   ];
 
-  const navLinks = ["Events", "Movies", "Sports", "Concerts"];
+  const navLinks = ["Home", "Events", "Movies", "Sports", "Concerts"];
 
   const getNavLinkStyle = (index) => ({
     cursor: "pointer", fontSize: "15px", fontWeight: "600",
@@ -46,6 +46,7 @@ function Movies({ darkMode, setDarkMode, onNavigate }) {
 
   return (
     <div style={{ fontFamily: "'Segoe UI', Arial, sans-serif", background: theme.background, color: theme.text, minHeight: "100vh" }}>
+
       {/* NAVBAR */}
       <nav style={{
         display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -91,9 +92,35 @@ function Movies({ darkMode, setDarkMode, onNavigate }) {
         </div>
       </nav>
 
+      {/* BACK BUTTON */}
+      <div style={{ padding: "16px 40px", background: theme.background }}>
+        <button
+          onClick={() => onNavigate("home")}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: "6px",
+            background: "none", border: `1.5px solid ${theme.cardBorder}`,
+            borderRadius: "999px", padding: "7px 18px",
+            color: theme.subtext, fontSize: "14px", fontWeight: "600",
+            cursor: "pointer", transition: "all 0.25s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "#4facfe";
+            e.currentTarget.style.borderColor = "#4facfe";
+            e.currentTarget.style.transform = "translateX(-3px)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = theme.subtext;
+            e.currentTarget.style.borderColor = theme.cardBorder;
+            e.currentTarget.style.transform = "translateX(0)";
+          }}
+        >
+          ← Back to Home
+        </button>
+      </div>
+
       {/* HERO */}
       <div style={{
-        padding: "60px 40px 40px", textAlign: "center",
+        padding: "40px 40px 40px", textAlign: "center",
         background: darkMode ? "linear-gradient(135deg, #0a0f1e, #0f172a, #1a1040)" : "linear-gradient(135deg, #e0f2fe, #f0f9ff, #ede9fe)",
       }}>
         <div style={{
