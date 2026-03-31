@@ -9,6 +9,7 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
   const [signInHover, setSignInHover] = useState(false);
   const [hoveredFooterLink, setHoveredFooterLink] = useState(null);
   const [hoveredContact, setHoveredContact] = useState(null);
+  const [hoveredNavLink, setHoveredNavLink] = useState(null);
 
   const theme = {
     background: darkMode ? "#0a0f1e" : "#f8fafc",
@@ -96,6 +97,8 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
     { icon: "⚽", label: "Football" },
   ];
 
+  const navLinks = ["Events", "Movies", "Sports", "Concerts"];
+
   const styles = {
     page: {
       fontFamily: "'Segoe UI', Arial, sans-serif",
@@ -137,12 +140,6 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
       display: "flex",
       gap: "30px",
       alignItems: "center",
-    },
-    link: {
-      cursor: "pointer",
-      fontSize: "15px",
-      fontWeight: "500",
-      color: theme.subtext,
     },
     toggleBtn: {
       width: "42px",
@@ -321,6 +318,22 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
     overflow: "hidden",
   });
 
+  const getNavLinkStyle = (index) => ({
+    cursor: "pointer",
+    fontSize: "15px",
+    fontWeight: "600",
+    color: hoveredNavLink === index ? theme.primary : theme.subtext,
+    transform: hoveredNavLink === index
+      ? "translateY(-2px)"
+      : "translateY(0)",
+    transition: "all 0.25s ease",
+    position: "relative",
+    paddingBottom: "4px",
+    borderBottom: hoveredNavLink === index
+      ? `2px solid ${theme.primary}`
+      : "2px solid transparent",
+  });
+
   return (
     <div style={styles.page}>
 
@@ -331,10 +344,16 @@ function Home({ darkMode, setDarkMode, onGetStarted }) {
           <span style={styles.logoText}>PrimePass</span>
         </div>
         <div style={styles.navLinks}>
-          <span style={styles.link}>Events</span>
-          <span style={styles.link}>Movies</span>
-          <span style={styles.link}>Sports</span>
-          <span style={styles.link}>Concerts</span>
+          {navLinks.map((l, i) => (
+            <span
+              key={i}
+              style={getNavLinkStyle(i)}
+              onMouseEnter={() => setHoveredNavLink(i)}
+              onMouseLeave={() => setHoveredNavLink(null)}
+            >
+              {l}
+            </span>
+          ))}
           <button
             style={styles.toggleBtn}
             onClick={() => setDarkMode(!darkMode)}
