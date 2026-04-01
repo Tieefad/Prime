@@ -9,6 +9,12 @@ import Concerts from "./components/Concerts";
 function App() {
   const [page, setPage] = useState("home");
   const [darkMode, setDarkMode] = useState(false);
+  const [user, setUser] = useState(null);
+
+  const handleLoginSuccess = (userData) => {
+    setUser(userData);
+    setPage("home");
+  };
 
   return (
     <div style={{ width: "100%", minHeight: "100vh" }}>
@@ -18,12 +24,15 @@ function App() {
           setDarkMode={setDarkMode}
           onGetStarted={() => setPage("login")}
           onNavigate={(p) => setPage(p)}
+          user={user}
+          onLogout={() => setUser(null)}
         />
       )}
       {page === "login" && (
         <Login
           darkMode={darkMode}
           onBack={() => setPage("home")}
+          onLoginSuccess={handleLoginSuccess}
         />
       )}
       {page === "events" && (
