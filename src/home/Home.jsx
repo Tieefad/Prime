@@ -32,7 +32,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
   };
 
   const categories = ["All", "Cricket", "Concert", "Movie", "Football", "Other"];
-  const navLinks = ["Events", "Movies", "Sports", "Concerts", "Admin"];
+  const navLinks = ["Events", "Movies", "Sports","Concerts", "Admin"];
 
   useEffect(() => { fetchEvents(); }, []);
 
@@ -142,7 +142,11 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
                   <div style={{ padding: "8px 12px", fontSize: "13px", color: theme.subtext, borderBottom: `1px solid ${theme.cardBorder}`, marginBottom: "8px" }}>
                     {user.email}
                   </div>
-                  <div style={{ padding: "8px 12px", cursor: "pointer", borderRadius: "8px", fontSize: "14px", color: "#ef4444", display: "flex", alignItems: "center", gap: "8px" }}
+                  <div style={{
+                    padding: "8px 12px", cursor: "pointer", borderRadius: "8px",
+                    fontSize: "14px", color: "#ef4444",
+                    display: "flex", alignItems: "center", gap: "8px"
+                  }}
                     onClick={handleLogout}
                     onMouseEnter={(e) => e.currentTarget.style.background = "rgba(239,68,68,0.1)"}
                     onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
@@ -354,7 +358,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
           </div>
         </div>
         <div style={{ borderTop: "1px solid #1e293b", paddingTop: "20px", textAlign: "center", fontSize: "13px" }}>
-          © 2026 PrimePass. All rights reserved. Made with ❤️ in Bangladesh.
+          © 2026 PrimePass. All rights reserved. Made By EFAD
         </div>
       </footer>
     </div>
