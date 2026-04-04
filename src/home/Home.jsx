@@ -32,11 +32,9 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
   };
 
   const categories = ["All", "Cricket", "Concert", "Movie", "Football", "Other"];
-  const navLinks = ["Events", "Movies", "Sports", "Concerts"];
+  const navLinks = ["Events", "Movies", "Sports", "Concerts", "Admin"];
 
-  useEffect(() => {
-    fetchEvents();
-  }, []);
+  useEffect(() => { fetchEvents(); }, []);
 
   const fetchEvents = async () => {
     try {
@@ -44,9 +42,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
       const snap = await getDocs(q);
       const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setEvents(data);
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
     setLoading(false);
   };
 
@@ -210,10 +206,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setSearchFocus(true)}
             onBlur={() => setSearchFocus(false)}
-            style={{
-              flex: 1, border: "none", outline: "none",
-              background: "transparent", fontSize: "15px", color: theme.text,
-            }}
+            style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: "15px", color: theme.text }}
           />
           <button style={{
             padding: "10px 24px", borderRadius: "999px", border: "none",
@@ -260,11 +253,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
 
         {loading ? (
           <div style={{ textAlign: "center", padding: "60px", color: theme.subtext }}>
-            <div style={{
-              width: "40px", height: "40px", borderRadius: "50%",
-              border: "3px solid #4facfe", borderTopColor: "transparent",
-              animation: "spin 0.8s linear infinite", margin: "0 auto 16px",
-            }} />
+            <div style={{ width: "40px", height: "40px", borderRadius: "50%", border: "3px solid #4facfe", borderTopColor: "transparent", animation: "spin 0.8s linear infinite", margin: "0 auto 16px" }} />
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             Loading events...
           </div>
@@ -282,7 +271,6 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
               <div key={e.id} style={getCardStyle(i)}
                 onMouseEnter={() => setHoveredCard(i)}
                 onMouseLeave={() => setHoveredCard(null)}
-                onClick={() => onNavigate(`event-${e.id}`)}
               >
                 <div style={{ height: "6px", background: `linear-gradient(90deg, ${getCategoryColor(e.category)}, #4facfe)` }} />
                 <div style={{ padding: "20px" }}>
@@ -310,7 +298,11 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
                     background: hoveredCard === i ? "linear-gradient(135deg, #4facfe, #a78bfa)" : darkMode ? "#1e293b" : "#f1f5f9",
                     color: hoveredCard === i ? "#fff" : theme.subtext,
                     fontWeight: "700", fontSize: "14px", cursor: "pointer", transition: "all 0.3s ease",
-                  }}>Book Now</button>
+                  }}
+                    onClick={() => user ? onNavigate(`book-${e.id}`) : onNavigate("login")}
+                  >
+                    {user ? "Book Now" : "Sign In to Book"}
+                  </button>
                 </div>
               </div>
             ))}
