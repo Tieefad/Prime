@@ -6,6 +6,9 @@ import {
   signInWithPopup,
   updateProfile,
 } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { Ticket } from "lucide-react";
 
 function Login({ darkMode, onBack, onLoginSuccess }) {
   const [email, setEmail] = useState("");
@@ -22,7 +25,6 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
 
   const theme = {
-    background: darkMode ? "#0f172a" : "#f8fafc",
     text: darkMode ? "#f1f5f9" : "#0f172a",
     card: darkMode ? "#1e293b" : "#ffffff",
     primary: "#4facfe",
@@ -42,6 +44,7 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
       flexDirection: "column",
       justifyContent: "center",
       alignItems: "center",
+      padding: "20px",
     },
     card: {
       background: theme.card,
@@ -134,7 +137,7 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
     },
     dividerText: {
       fontSize: "12px",
-      color: darkMode ? "#94a3b8" : "#94a3b8",
+      color: "#94a3b8",
       fontWeight: "600",
     },
     error: {
@@ -206,6 +209,15 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
     transition: "all 0.3s ease",
   });
 
+  const saveUserToFirestore = async (user) => {
+    await setDoc(doc(db, "users", user.uid), {
+      name: user.displayName || name,
+      email: user.email,
+      createdAt: new Date(),
+      role: "user",
+    }, { merge: true });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -214,6 +226,7 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
       if (isSignUp) {
         const result = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(result.user, { displayName: name });
+        await saveUserToFirestore(result.user);
         onLoginSuccess(result.user);
       } else {
         const result = await signInWithEmailAndPassword(auth, email, password);
@@ -226,6 +239,7 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
         err.code === "auth/user-not-found" ? "No account found with this email." :
         err.code === "auth/weak-password" ? "Password must be at least 6 characters." :
         err.code === "auth/invalid-email" ? "Invalid email address." :
+        err.code === "auth/invalid-credential" ? "Invalid email or password." :
         "Something went wrong. Please try again."
       );
     }
@@ -237,6 +251,7 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
     setLoading(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
+      await saveUserToFirestore(result.user);
       onLoginSuccess(result.user);
     } catch (err) {
       setError("Google sign-in failed. Please try again.");
@@ -244,30 +259,20 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
     setLoading(false);
   };
 
-  const handleToggle = () => {
-    setIsSignUp(!isSignUp);
-    setEmail("");
-    setPassword("");
-    setName("");
-    setError("");
-  };
-
   return (
     <div style={styles.page}>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px", cursor: "pointer" }} onClick={onBack}>
+        <Ticket size={22} color="#4facfe" />
+        <span style={{ fontSize: "22px", fontWeight: "800", background: "linear-gradient(135deg, #4facfe, #00f2fe)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>PrimePass</span>
+      </div>
+
       <div style={styles.card}>
-        <h2 style={styles.title}>
-          {isSignUp ? "Create Account" : "Welcome Back"}
-        </h2>
+        <h2 style={styles.title}>{isSignUp ? "Create Account" : "Welcome Back"}</h2>
         <p style={styles.subtitle}>
-          {isSignUp
-            ? "Sign up for a PrimePass account"
-            : "Login to your PrimePass account"}
+          {isSignUp ? "Sign up for a PrimePass account" : "Login to your PrimePass account"}
         </p>
 
-        {/* Google Sign In */}
-        <button
-          style={styles.googleBtn}
-          onClick={handleGoogle}
+        <button style={styles.googleBtn} onClick={handleGoogle}
           onMouseEnter={() => setGoogleHover(true)}
           onMouseLeave={() => setGoogleHover(false)}
           disabled={loading}
@@ -281,14 +286,12 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
           Continue with Google
         </button>
 
-        {/* Divider */}
         <div style={styles.divider}>
           <div style={styles.dividerLine} />
           <span style={styles.dividerText}>OR</span>
           <div style={styles.dividerLine} />
         </div>
 
-        {/* Error message */}
         {error && <div style={styles.error}>{error}</div>}
 
         <form onSubmit={handleSubmit}>
@@ -297,9 +300,7 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
               <label style={styles.label}>Full Name</label>
               <input
                 style={getInputStyle("name")}
-                type="text"
-                placeholder="John Doe"
-                value={name}
+                type="text" placeholder="John Doe" value={name}
                 onChange={(e) => setName(e.target.value)}
                 onFocus={() => setFocusedInput("name")}
                 onBlur={() => setFocusedInput(null)}
@@ -313,9 +314,7 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
           <label style={styles.label}>Email</label>
           <input
             style={getInputStyle("email")}
-            type="email"
-            placeholder="you@example.com"
-            value={email}
+            type="email" placeholder="you@example.com" value={email}
             onChange={(e) => setEmail(e.target.value)}
             onFocus={() => setFocusedInput("email")}
             onBlur={() => setFocusedInput(null)}
@@ -327,9 +326,7 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
           <label style={styles.label}>Password</label>
           <input
             style={getInputStyle("password")}
-            type="password"
-            placeholder="••••••••"
-            value={password}
+            type="password" placeholder="••••••••" value={password}
             onChange={(e) => setPassword(e.target.value)}
             onFocus={() => setFocusedInput("password")}
             onBlur={() => setFocusedInput(null)}
@@ -338,9 +335,7 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
             required
           />
 
-          <button
-            style={styles.button}
-            type="submit"
+          <button style={styles.button} type="submit"
             onMouseEnter={() => setBtnHover(true)}
             onMouseLeave={() => setBtnHover(false)}
             disabled={loading}
@@ -351,9 +346,8 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
 
         <div style={styles.toggleRow}>
           {isSignUp ? "Already have an account?" : "Don't have an account?"}
-          <span
-            style={styles.toggleLink}
-            onClick={handleToggle}
+          <span style={styles.toggleLink}
+            onClick={() => { setIsSignUp(!isSignUp); setError(""); }}
             onMouseEnter={() => setLinkHover(true)}
             onMouseLeave={() => setLinkHover(false)}
           >
@@ -361,9 +355,7 @@ function Login({ darkMode, onBack, onLoginSuccess }) {
           </span>
         </div>
 
-        <span
-          style={styles.backLink}
-          onClick={onBack}
+        <span style={styles.backLink} onClick={onBack}
           onMouseEnter={() => setBackHover(true)}
           onMouseLeave={() => setBackHover(false)}
         >

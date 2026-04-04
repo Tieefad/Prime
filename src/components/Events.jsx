@@ -1,11 +1,17 @@
-import React, { useState } from "react";
-import { Sun, Moon, Ticket, MapPin, Calendar, Star } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Sun, Moon, Ticket, MapPin, Calendar, Star, Search, ChevronRight } from "lucide-react";
+import { db } from "../firebase";
+import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
 
-function Events({ darkMode, setDarkMode, onNavigate }) {
+function Events({ darkMode, setDarkMode, onNavigate, user }) {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [toggleHover, setToggleHover] = useState(false);
   const [hoveredNavLink, setHoveredNavLink] = useState(null);
   const [signInHover, setSignInHover] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocus, setSearchFocus] = useState(false);
 
   const theme = {
     background: darkMode ? "#0a0f1e" : "#f8fafc",
@@ -14,19 +20,32 @@ function Events({ darkMode, setDarkMode, onNavigate }) {
     card: darkMode ? "#111827" : "#ffffff",
     cardBorder: darkMode ? "#1e293b" : "#e2e8f0",
     primary: "#4facfe",
-    navbar: darkMode ? "rgba(10,15,30,0.85)" : "rgba(255,255,255,0.85)",
+    navbar: darkMode ? "rgba(10,15,30,0.95)" : "rgba(255,255,255,0.95)",
   };
 
-  const events = [
-    { id: 1, title: "BPL 2025 — Dhaka Capitals vs Chattogram", location: "Sher-e-Bangla Stadium, Mirpur", date: "15 Feb 2026", price: "৳ 500", rating: 4.9, badge: "🏏 Cricket", color: "#10b981" },
-    { id: 2, title: "Shironamhin Live in Concert", location: "Bangladesh Army Stadium, Banani", date: "22 Feb 2026", price: "৳ 800", rating: 4.8, badge: "🎵 Concert", color: "#8b5cf6" },
-    { id: 3, title: "Dhaka Literary Festival 2026", location: "Bangla Academy, Dhaka", date: "5 Mar 2026", price: "৳ 150", rating: 4.7, badge: "📚 Festival", color: "#f59e0b" },
-    { id: 4, title: "Aurthohin Live — Dhaka Special Night", location: "ICCB, Bashundhara", date: "1 Mar 2026", price: "৳ 1000", rating: 4.9, badge: "🎵 Concert", color: "#8b5cf6" },
-    { id: 5, title: "Stand-up Comedy Night — Dhaka", location: "Navana Tower, Gulshan", date: "18 Mar 2026", price: "৳ 600", rating: 4.6, badge: "🎤 Comedy", color: "#ec4899" },
-    { id: 6, title: "Tech Summit Bangladesh 2026", location: "Bashundhara Convention Centre", date: "25 Mar 2026", price: "৳ 300", rating: 4.8, badge: "💻 Tech", color: "#3b82f6" },
-  ];
+  const navLinks = ["Events", "Movies", "Sports", "Concerts"];
 
-  const navLinks = ["Home", "Events", "Movies", "Sports", "Concerts"];
+  useEffect(() => { fetchEvents(); }, []);
+
+  const fetchEvents = async () => {
+    setLoading(true);
+    try {
+      const q = query(collection(db, "events"), orderBy("createdAt", "desc"));
+      const snap = await getDocs(q);
+      setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch (err) { console.error(err); }
+    setLoading(false);
+  };
+
+  const filteredEvents = events.filter(e =>
+    e.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    e.location?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const getCategoryColor = (cat) => {
+    const colors = { Cricket: "#10b981", Concert: "#8b5cf6", Movie: "#f59e0b", Football: "#3b82f6", Other: "#ec4899" };
+    return colors[cat] || "#4facfe";
+  };
 
   const getNavLinkStyle = (index) => ({
     cursor: "pointer", fontSize: "15px", fontWeight: "600",
@@ -79,93 +98,112 @@ function Events({ darkMode, setDarkMode, onNavigate }) {
           >
             {darkMode ? <Sun size={17} strokeWidth={2} /> : <Moon size={17} strokeWidth={2} />}
           </button>
-          <button style={{
-            padding: "9px 22px", borderRadius: "999px", border: "none",
-            background: signInHover ? "linear-gradient(135deg, #0ea5e9, #8b5cf6)" : "linear-gradient(135deg, #4facfe, #a78bfa)",
-            color: "#fff", fontWeight: "700", fontSize: "14px", cursor: "pointer",
-            transform: signInHover ? "translateY(-2px) scale(1.05)" : "translateY(0) scale(1)", transition: "all 0.3s ease",
-          }}
-            onClick={() => onNavigate("login")}
-            onMouseEnter={() => setSignInHover(true)}
-            onMouseLeave={() => setSignInHover(false)}
-          >Sign In</button>
+          {user ? (
+            <span style={{ fontSize: "14px", fontWeight: "600", color: theme.primary }}>
+              Hi, {user.displayName || user.email?.split("@")[0]}
+            </span>
+          ) : (
+            <button style={{
+              padding: "9px 22px", borderRadius: "999px", border: "none",
+              background: signInHover ? "linear-gradient(135deg, #0ea5e9, #8b5cf6)" : "linear-gradient(135deg, #4facfe, #a78bfa)",
+              color: "#fff", fontWeight: "700", fontSize: "14px", cursor: "pointer",
+              transform: signInHover ? "translateY(-2px) scale(1.05)" : "translateY(0) scale(1)", transition: "all 0.3s ease",
+            }}
+              onClick={() => onNavigate("login")}
+              onMouseEnter={() => setSignInHover(true)}
+              onMouseLeave={() => setSignInHover(false)}
+            >Sign In</button>
+          )}
         </div>
       </nav>
 
       {/* BACK BUTTON */}
       <div style={{ padding: "16px 40px", background: theme.background }}>
-        <button
-          onClick={() => onNavigate("home")}
-          style={{
-            display: "inline-flex", alignItems: "center", gap: "6px",
-            background: "none", border: `1.5px solid ${theme.cardBorder}`,
-            borderRadius: "999px", padding: "7px 18px",
-            color: theme.subtext, fontSize: "14px", fontWeight: "600",
-            cursor: "pointer", transition: "all 0.25s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#4facfe";
-            e.currentTarget.style.borderColor = "#4facfe";
-            e.currentTarget.style.transform = "translateX(-3px)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = theme.subtext;
-            e.currentTarget.style.borderColor = theme.cardBorder;
-            e.currentTarget.style.transform = "translateX(0)";
-          }}
-        >
-          ← Back to Home
-        </button>
+        <button onClick={() => onNavigate("home")} style={{
+          display: "inline-flex", alignItems: "center", gap: "6px",
+          background: "none", border: `1.5px solid ${theme.cardBorder}`,
+          borderRadius: "999px", padding: "7px 18px",
+          color: theme.subtext, fontSize: "14px", fontWeight: "600", cursor: "pointer", transition: "all 0.25s ease",
+        }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "#4facfe"; e.currentTarget.style.borderColor = "#4facfe"; e.currentTarget.style.transform = "translateX(-3px)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = theme.subtext; e.currentTarget.style.borderColor = theme.cardBorder; e.currentTarget.style.transform = "translateX(0)"; }}
+        >← Back to Home</button>
       </div>
 
       {/* HERO */}
       <div style={{
-        padding: "40px 40px 40px", textAlign: "center",
+        padding: "40px 40px 30px", textAlign: "center",
         background: darkMode ? "linear-gradient(135deg, #0a0f1e, #0f172a, #1a1040)" : "linear-gradient(135deg, #e0f2fe, #f0f9ff, #ede9fe)",
       }}>
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: "6px",
-          background: darkMode ? "rgba(79,172,254,0.15)" : "rgba(79,172,254,0.1)",
-          border: "1px solid rgba(79,172,254,0.3)", borderRadius: "999px",
-          padding: "6px 16px", fontSize: "13px", color: theme.primary, fontWeight: "600", marginBottom: "20px",
-        }}>
-          <Calendar size={13} /> All Events in Dhaka
-        </div>
-        <h1 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: "800", marginBottom: "12px", letterSpacing: "-1px" }}>
-          Upcoming <span style={{ background: "linear-gradient(135deg, #4facfe, #a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Events</span>
+        <h1 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: "800", marginBottom: "16px", letterSpacing: "-1px" }}>
+          All <span style={{ background: "linear-gradient(135deg, #4facfe, #a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Events</span>
         </h1>
-        <p style={{ fontSize: "16px", color: theme.subtext, maxWidth: "500px", margin: "0 auto" }}>
-          Concerts, festivals, tech summits and more — all happening in Dhaka.
-        </p>
+        <div style={{
+          display: "flex", alignItems: "center", gap: "12px",
+          background: theme.card, borderRadius: "999px", padding: "8px 8px 8px 20px",
+          maxWidth: "480px", margin: "0 auto",
+          border: `1.5px solid ${searchFocus ? "#4facfe" : theme.cardBorder}`,
+          boxShadow: searchFocus ? "0 0 0 3px rgba(79,172,254,0.2)" : "0 4px 20px rgba(0,0,0,0.08)",
+          transition: "all 0.3s ease",
+        }}>
+          <Search size={18} color={theme.subtext} />
+          <input placeholder="Search events..." value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setSearchFocus(true)}
+            onBlur={() => setSearchFocus(false)}
+            style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: "15px", color: theme.text }}
+          />
+        </div>
       </div>
 
       {/* GRID */}
-      <div style={{ padding: "50px 40px 60px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "24px" }}>
-          {events.map((e, i) => (
-            <div key={e.id} style={getCardStyle(i)} onMouseEnter={() => setHoveredCard(i)} onMouseLeave={() => setHoveredCard(null)}>
-              <div style={{ height: "6px", background: `linear-gradient(90deg, ${e.color}, #4facfe)` }} />
-              <div style={{ padding: "20px" }}>
-                <div style={{ display: "inline-block", background: `${e.color}22`, color: e.color, fontSize: "12px", fontWeight: "700", padding: "4px 10px", borderRadius: "999px", marginBottom: "12px" }}>{e.badge}</div>
-                <h3 style={{ fontSize: "16px", fontWeight: "700", marginBottom: "12px", lineHeight: "1.4", color: theme.text }}>{e.title}</h3>
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: theme.subtext, marginBottom: "6px" }}><MapPin size={13} /> {e.location}</div>
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: theme.subtext, marginBottom: "16px" }}><Calendar size={13} /> {e.date}</div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: "20px", fontWeight: "800", color: theme.primary }}>{e.price}</span>
-                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                    <Star size={13} fill="#fbbf24" color="#fbbf24" />
-                    <span style={{ fontSize: "13px", fontWeight: "600" }}>{e.rating}</span>
+      <div style={{ padding: "40px" }}>
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "60px", color: theme.subtext }}>
+            <div style={{ width: "40px", height: "40px", borderRadius: "50%", border: "3px solid #4facfe", borderTopColor: "transparent", animation: "spin 0.8s linear infinite", margin: "0 auto 16px" }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            Loading events...
+          </div>
+        ) : filteredEvents.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "60px", color: theme.subtext }}>
+            <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎫</div>
+            <p style={{ fontSize: "18px", fontWeight: "600" }}>No events found</p>
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "24px" }}>
+            {filteredEvents.map((e, i) => (
+              <div key={e.id} style={getCardStyle(i)}
+                onMouseEnter={() => setHoveredCard(i)}
+                onMouseLeave={() => setHoveredCard(null)}
+              >
+                <div style={{ height: "6px", background: `linear-gradient(90deg, ${getCategoryColor(e.category)}, #4facfe)` }} />
+                <div style={{ padding: "20px" }}>
+                  <div style={{ display: "inline-block", background: `${getCategoryColor(e.category)}22`, color: getCategoryColor(e.category), fontSize: "12px", fontWeight: "700", padding: "4px 10px", borderRadius: "999px", marginBottom: "12px" }}>{e.category}</div>
+                  <h3 style={{ fontSize: "16px", fontWeight: "700", marginBottom: "12px", lineHeight: "1.4", color: theme.text }}>{e.title}</h3>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: theme.subtext, marginBottom: "6px" }}><MapPin size={13} /> {e.location}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: theme.subtext, marginBottom: "16px" }}><Calendar size={13} /> {e.date}</div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: "20px", fontWeight: "800", color: theme.primary }}>৳ {e.price}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                      <Star size={13} fill="#fbbf24" color="#fbbf24" />
+                      <span style={{ fontSize: "13px", fontWeight: "600" }}>{e.rating || "4.8"}</span>
+                    </div>
                   </div>
+                  <button style={{
+                    width: "100%", marginTop: "14px", padding: "10px", borderRadius: "999px", border: "none",
+                    background: hoveredCard === i ? "linear-gradient(135deg, #4facfe, #a78bfa)" : darkMode ? "#1e293b" : "#f1f5f9",
+                    color: hoveredCard === i ? "#fff" : theme.subtext,
+                    fontWeight: "700", fontSize: "14px", cursor: "pointer", transition: "all 0.3s ease",
+                  }}
+                    onClick={() => user ? onNavigate(`book-${e.id}`) : onNavigate("login")}
+                  >
+                    {user ? "Book Now" : "Sign In to Book"}
+                  </button>
                 </div>
-                <button style={{
-                  width: "100%", marginTop: "14px", padding: "10px", borderRadius: "999px", border: "none",
-                  background: hoveredCard === i ? "linear-gradient(135deg, #4facfe, #a78bfa)" : darkMode ? "#1e293b" : "#f1f5f9",
-                  color: hoveredCard === i ? "#fff" : theme.subtext, fontWeight: "700", fontSize: "14px", cursor: "pointer", transition: "all 0.3s ease",
-                }}>Book Now</button>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
