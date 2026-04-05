@@ -4,7 +4,7 @@ import {
   collection, addDoc, getDocs, deleteDoc,
   doc, updateDoc, query, orderBy, serverTimestamp
 } from "firebase/firestore";
-import { Ticket, Plus, Trash2, Edit3, X, Check, Sun, Moon, LogOut } from "lucide-react";
+import { Ticket, Plus, Trash2, Edit3, X, Check, Sun, Moon, LogOut, ArrowLeft } from "lucide-react";
 import { signOut } from "firebase/auth";
 
 function Admin({ darkMode, setDarkMode, onNavigate, user }) {
@@ -55,11 +55,13 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
         ...form,
         price: Number(form.price),
         totalSeats: Number(form.totalSeats),
-        bookedSeats: editingId ? undefined : [],
         rating: Number(form.rating),
         updatedAt: serverTimestamp(),
       };
-      if (!editingId) data.createdAt = serverTimestamp();
+      if (!editingId) {
+        data.createdAt = serverTimestamp();
+        data.bookedSeats = [];
+      }
       if (editingId) {
         await updateDoc(doc(db, "events", editingId), data);
       } else {
@@ -95,7 +97,11 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
   };
 
   const resetForm = () => {
-    setForm({ title: "", category: "Concert", location: "", date: "", price: "", totalSeats: "100", description: "", rating: "4.8" });
+    setForm({
+      title: "", category: "Concert", location: "",
+      date: "", price: "", totalSeats: "100",
+      description: "", rating: "4.8"
+    });
     setEditingId(null);
     setShowForm(false);
   };
@@ -115,7 +121,10 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
   };
 
   const getCategoryColor = (cat) => {
-    const colors = { Cricket: "#10b981", Concert: "#8b5cf6", Movie: "#f59e0b", Football: "#3b82f6", Other: "#ec4899" };
+    const colors = {
+      Cricket: "#10b981", Concert: "#8b5cf6",
+      Movie: "#f59e0b", Football: "#3b82f6", Other: "#ec4899"
+    };
     return colors[cat] || "#4facfe";
   };
 
@@ -134,15 +143,39 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
           <span style={{ fontSize: "12px", fontWeight: "700", background: "#ef4444", color: "#fff", padding: "2px 8px", borderRadius: "999px", marginLeft: "4px" }}>ADMIN</span>
         </div>
         <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+          <button
+            onClick={() => onNavigate("home")}
+            style={{
+              display: "flex", alignItems: "center", gap: "6px",
+              padding: "8px 16px", borderRadius: "999px",
+              border: `1.5px solid ${theme.cardBorder}`,
+              background: "transparent", color: theme.text,
+              fontSize: "14px", fontWeight: "600", cursor: "pointer",
+              transition: "all 0.25s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "#4facfe";
+              e.currentTarget.style.borderColor = "#4facfe";
+              e.currentTarget.style.transform = "translateX(-3px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = theme.text;
+              e.currentTarget.style.borderColor = theme.cardBorder;
+              e.currentTarget.style.transform = "translateX(0)";
+            }}
+          >
+            <ArrowLeft size={16} /> Back to Home
+          </button>
           <span style={{ fontSize: "14px", color: theme.subtext }}>{user?.email}</span>
           <button style={{
             width: "38px", height: "38px", borderRadius: "50%",
             border: `2px solid ${darkMode ? "#1e293b" : "#e2e8f0"}`,
             cursor: "pointer", background: darkMode ? "#1e293b" : "#f1f5f9",
             color: darkMode ? "#fbbf24" : "#6366f1",
-            display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "all 0.3s ease",
           }} onClick={() => setDarkMode(!darkMode)}>
-            {darkMode ? <Sun size={15} /> : <Moon size={15} />}
+            {darkMode ? <Moon size={15} /> : <Sun size={15} />}
           </button>
           <button style={{
             padding: "8px 16px", borderRadius: "999px", border: "none",
@@ -272,7 +305,6 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
                         </span>
                       </div>
 
-                      {/* Delete confirm */}
                       {deleteConfirm === event.id && (
                         <div style={{
                           marginTop: "12px", padding: "12px", borderRadius: "8px",
@@ -284,16 +316,12 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
                               flex: 1, padding: "6px", borderRadius: "6px", border: "none",
                               background: "#ef4444", color: "#fff", fontSize: "13px",
                               fontWeight: "600", cursor: "pointer",
-                            }} onClick={() => handleDelete(event.id)}>
-                              Yes, Delete
-                            </button>
+                            }} onClick={() => handleDelete(event.id)}>Yes, Delete</button>
                             <button style={{
                               flex: 1, padding: "6px", borderRadius: "6px",
                               border: `1px solid ${theme.cardBorder}`, background: "transparent",
                               color: theme.text, fontSize: "13px", cursor: "pointer",
-                            }} onClick={() => setDeleteConfirm(null)}>
-                              Cancel
-                            </button>
+                            }} onClick={() => setDeleteConfirm(null)}>Cancel</button>
                           </div>
                         </div>
                       )}
