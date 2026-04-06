@@ -137,35 +137,41 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
         padding: "14px 40px", background: theme.navbar, backdropFilter: "blur(12px)",
         boxShadow: "0 1px 20px rgba(0,0,0,0.1)", position: "sticky", top: 0, zIndex: 1000,
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }} onClick={() => onNavigate("home")}>
-          <Ticket size={22} color={theme.primary} />
-          <span style={{ fontSize: "22px", fontWeight: "800", background: "linear-gradient(135deg, #4facfe, #00f2fe)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>PrimePass</span>
-          <span style={{ fontSize: "12px", fontWeight: "700", background: "#ef4444", color: "#fff", padding: "2px 8px", borderRadius: "999px", marginLeft: "4px" }}>ADMIN</span>
-        </div>
-        <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {/* BACK BUTTON */}
           <button
             onClick={() => onNavigate("home")}
+            title="Back to Home"
             style={{
-              display: "flex", alignItems: "center", gap: "6px",
-              padding: "8px 16px", borderRadius: "999px",
-              border: `1.5px solid ${theme.cardBorder}`,
-              background: "transparent", color: theme.text,
-              fontSize: "14px", fontWeight: "600", cursor: "pointer",
-              transition: "all 0.25s ease",
+              width: "38px", height: "38px", borderRadius: "50%",
+              border: `2px solid ${theme.cardBorder}`,
+              background: "transparent", color: theme.subtext,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer", transition: "all 0.25s ease",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.color = "#4facfe";
               e.currentTarget.style.borderColor = "#4facfe";
+              e.currentTarget.style.color = "#4facfe";
               e.currentTarget.style.transform = "translateX(-3px)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = theme.text;
               e.currentTarget.style.borderColor = theme.cardBorder;
+              e.currentTarget.style.color = theme.subtext;
               e.currentTarget.style.transform = "translateX(0)";
             }}
           >
-            <ArrowLeft size={16} /> Back to Home
+            <ArrowLeft size={17} />
           </button>
+
+          {/* LOGO */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }} onClick={() => onNavigate("home")}>
+            <Ticket size={22} color={theme.primary} />
+            <span style={{ fontSize: "22px", fontWeight: "800", background: "linear-gradient(135deg, #4facfe, #00f2fe)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>PrimePass</span>
+            <span style={{ fontSize: "12px", fontWeight: "700", background: "#ef4444", color: "#fff", padding: "2px 8px", borderRadius: "999px" }}>ADMIN</span>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
           <span style={{ fontSize: "14px", color: theme.subtext }}>{user?.email}</span>
           <button style={{
             width: "38px", height: "38px", borderRadius: "50%",
@@ -175,7 +181,7 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
             display: "flex", alignItems: "center", justifyContent: "center",
             transition: "all 0.3s ease",
           }} onClick={() => setDarkMode(!darkMode)}>
-            {darkMode ? <Moon size={15} /> : <Sun size={15} />}
+            {darkMode ? <Sun size={15} /> : <Moon size={15} />}
           </button>
           <button style={{
             padding: "8px 16px", borderRadius: "999px", border: "none",
@@ -211,11 +217,11 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
         <div style={{ display: "flex", gap: "8px", marginBottom: "32px" }}>
           {["events", "stats"].map(tab => (
             <button key={tab} style={{
-              padding: "8px 20px", borderRadius: "999px", border: "none", cursor: "pointer",
+              padding: "8px 20px", borderRadius: "999px", cursor: "pointer",
               background: activeTab === tab ? "linear-gradient(135deg, #4facfe, #a78bfa)" : theme.card,
               color: activeTab === tab ? "#fff" : theme.subtext,
-              fontWeight: "600", fontSize: "14px",
-              border: activeTab === tab ? "none" : `1px solid ${theme.cardBorder}`,
+              fontWeight: "600", fontSize: "14px", border: "none",
+              outline: activeTab === tab ? "none" : `1px solid ${theme.cardBorder}`,
               transition: "all 0.2s ease",
             }} onClick={() => setActiveTab(tab)}>
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -225,7 +231,7 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
 
         {/* STATS TAB */}
         {activeTab === "stats" && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px", marginBottom: "32px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px" }}>
             {[
               { label: "Total Events", value: events.length, icon: "🎫", color: "#4facfe" },
               { label: "Total Seats", value: events.reduce((a, e) => a + (e.totalSeats || 0), 0), icon: "💺", color: "#10b981" },
@@ -304,7 +310,6 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
                           {event.bookedSeats?.length || 0}/{event.totalSeats} seats
                         </span>
                       </div>
-
                       {deleteConfirm === event.id && (
                         <div style={{
                           marginTop: "12px", padding: "12px", borderRadius: "8px",
@@ -334,7 +339,7 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
         )}
       </div>
 
-      {/* ADD/EDIT FORM MODAL */}
+      {/* FORM MODAL */}
       {showForm && (
         <div style={{
           position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)",
@@ -381,8 +386,12 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 <div>
                   <label style={labelStyle}>Date *</label>
-                  <input style={{ ...inputStyle, marginBottom: 0 }} placeholder="e.g. 15 Mar 2026" value={form.date}
-                    onChange={(e) => setForm({ ...form, date: e.target.value })} required
+                  <input
+                    style={{ ...inputStyle, marginBottom: 0, colorScheme: darkMode ? "dark" : "light" }}
+                    type="date"
+                    value={form.date}
+                    onChange={(e) => setForm({ ...form, date: e.target.value })}
+                    required
                     onFocus={(e) => e.target.style.borderColor = "#4facfe"}
                     onBlur={(e) => e.target.style.borderColor = theme.cardBorder}
                   />

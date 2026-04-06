@@ -40,8 +40,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
     try {
       const q = query(collection(db, "events"), orderBy("createdAt", "desc"), limit(6));
       const snap = await getDocs(q);
-      const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setEvents(data);
+      setEvents(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     } catch (err) { console.error(err); }
     setLoading(false);
   };
@@ -66,13 +65,29 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
     return colors[cat] || "#4facfe";
   };
 
-  const getNavLinkStyle = (index) => ({
-    cursor: "pointer", fontSize: "15px", fontWeight: "600",
-    color: hoveredNavLink === index ? theme.primary : theme.subtext,
-    transform: hoveredNavLink === index ? "translateY(-2px)" : "translateY(0)",
-    transition: "all 0.25s ease", paddingBottom: "4px",
-    borderBottom: hoveredNavLink === index ? `2px solid ${theme.primary}` : "2px solid transparent",
-  });
+  const getNavLinkStyle = (index, label) => {
+    const isHovered = hoveredNavLink === index;
+    const isAdmin = label === "Admin";
+    return {
+      cursor: "pointer",
+      fontSize: "14px",
+      fontWeight: "600",
+      color: isAdmin
+        ? isHovered ? "#fff" : "#ef4444"
+        : isHovered ? "#fff" : theme.subtext,
+      padding: isAdmin ? "6px 14px" : "6px 14px",
+      borderRadius: "999px",
+      background: isAdmin
+        ? isHovered ? "#ef4444" : "rgba(239,68,68,0.1)"
+        : isHovered ? "linear-gradient(135deg, #4facfe, #a78bfa)" : "transparent",
+      border: isAdmin
+        ? `1.5px solid ${isHovered ? "#ef4444" : "rgba(239,68,68,0.3)"}`
+        : "1.5px solid transparent",
+      transform: isHovered ? "translateY(-2px)" : "translateY(0)",
+      transition: "all 0.25s ease",
+      boxShadow: isHovered && !isAdmin ? "0 4px 15px rgba(79,172,254,0.3)" : "none",
+    };
+  };
 
   const getCardStyle = (index) => ({
     background: theme.card, borderRadius: "16px",
@@ -95,21 +110,26 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
           <Ticket size={22} color={theme.primary} />
           <span style={{ fontSize: "22px", fontWeight: "800", background: "linear-gradient(135deg, #4facfe, #00f2fe)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>PrimePass</span>
         </div>
-        <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
           {navLinks.map((l, i) => (
-            <span key={i} style={getNavLinkStyle(i)}
+            <span key={i}
+              style={getNavLinkStyle(i, l)}
               onMouseEnter={() => setHoveredNavLink(i)}
               onMouseLeave={() => setHoveredNavLink(null)}
               onClick={() => onNavigate(l.toLowerCase())}
             >{l}</span>
           ))}
+
+          <div style={{ width: "1px", height: "24px", background: theme.cardBorder, margin: "0 8px" }} />
+
           <button style={{
             width: "42px", height: "42px", borderRadius: "50%",
             border: `2px solid ${darkMode ? "#1e293b" : "#e2e8f0"}`,
             cursor: "pointer", background: darkMode ? "#1e293b" : "#f1f5f9",
             color: darkMode ? "#fbbf24" : "#6366f1",
             display: "flex", alignItems: "center", justifyContent: "center",
-            transform: toggleHover ? "scale(1.1) rotate(15deg)" : "scale(1)", transition: "all 0.3s ease",
+            transform: toggleHover ? "scale(1.1) rotate(15deg)" : "scale(1)",
+            transition: "all 0.3s ease",
           }}
             onClick={() => setDarkMode(!darkMode)}
             onMouseEnter={() => setToggleHover(true)}
@@ -159,9 +179,12 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
           ) : (
             <button style={{
               padding: "9px 22px", borderRadius: "999px", border: "none",
-              background: signInHover ? "linear-gradient(135deg, #0ea5e9, #8b5cf6)" : "linear-gradient(135deg, #4facfe, #a78bfa)",
+              background: signInHover
+                ? "linear-gradient(135deg, #0ea5e9, #8b5cf6)"
+                : "linear-gradient(135deg, #4facfe, #a78bfa)",
               color: "#fff", fontWeight: "700", fontSize: "14px", cursor: "pointer",
-              transform: signInHover ? "translateY(-2px) scale(1.05)" : "translateY(0) scale(1)", transition: "all 0.3s ease",
+              transform: signInHover ? "translateY(-2px) scale(1.05)" : "translateY(0) scale(1)",
+              transition: "all 0.3s ease",
             }}
               onClick={() => onNavigate("login")}
               onMouseEnter={() => setSignInHover(true)}
@@ -174,7 +197,9 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
       {/* HERO */}
       <section style={{
         padding: "80px 40px 60px", textAlign: "center",
-        background: darkMode ? "linear-gradient(135deg, #0a0f1e 0%, #0f172a 50%, #1a1040 100%)" : "linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #ede9fe 100%)",
+        background: darkMode
+          ? "linear-gradient(135deg, #0a0f1e 0%, #0f172a 50%, #1a1040 100%)"
+          : "linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #ede9fe 100%)",
       }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: "6px",
@@ -214,7 +239,9 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
           />
           <button style={{
             padding: "10px 24px", borderRadius: "999px", border: "none",
-            background: btnHover ? "linear-gradient(135deg, #0ea5e9, #8b5cf6)" : "linear-gradient(135deg, #4facfe, #a78bfa)",
+            background: btnHover
+              ? "linear-gradient(135deg, #0ea5e9, #8b5cf6)"
+              : "linear-gradient(135deg, #4facfe, #a78bfa)",
             color: "#fff", fontWeight: "700", fontSize: "14px", cursor: "pointer",
             transform: btnHover ? "scale(1.05)" : "scale(1)", transition: "all 0.3s ease",
           }}
@@ -230,10 +257,14 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
           <div key={i} style={{
             padding: "8px 20px", borderRadius: "999px", cursor: "pointer",
             fontSize: "14px", fontWeight: "600",
-            background: activeCategory === c ? "linear-gradient(135deg, #4facfe, #a78bfa)" : theme.card,
+            background: activeCategory === c
+              ? "linear-gradient(135deg, #4facfe, #a78bfa)"
+              : theme.card,
             color: activeCategory === c ? "#fff" : theme.text,
             border: `1.5px solid ${activeCategory === c ? "transparent" : theme.cardBorder}`,
-            boxShadow: hoveredCat === i ? "0 8px 20px rgba(79,172,254,0.35)" : "0 2px 8px rgba(0,0,0,0.06)",
+            boxShadow: hoveredCat === i
+              ? "0 8px 20px rgba(79,172,254,0.35)"
+              : "0 2px 8px rgba(0,0,0,0.06)",
             transform: hoveredCat === i ? "translateY(-3px) scale(1.05)" : "translateY(0) scale(1)",
             transition: "all 0.3s ease",
           }}
@@ -250,9 +281,12 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
           <span style={{ fontSize: "24px", fontWeight: "800", letterSpacing: "-0.5px" }}>
             🔥 {searchQuery ? `Results for "${searchQuery}"` : "Trending in Dhaka"}
           </span>
-          <span style={{ color: theme.primary, cursor: "pointer", fontSize: "14px", fontWeight: "600", display: "flex", alignItems: "center", gap: "4px" }}
-            onClick={() => onNavigate("events")}
-          >See all <ChevronRight size={14} /></span>
+          <span style={{
+            color: theme.primary, cursor: "pointer", fontSize: "14px",
+            fontWeight: "600", display: "flex", alignItems: "center", gap: "4px"
+          }} onClick={() => onNavigate("events")}>
+            See all <ChevronRight size={14} />
+          </span>
         </div>
 
         {loading ? (
@@ -279,8 +313,10 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
                 <div style={{ height: "6px", background: `linear-gradient(90deg, ${getCategoryColor(e.category)}, #4facfe)` }} />
                 <div style={{ padding: "20px" }}>
                   <div style={{
-                    display: "inline-block", background: `${getCategoryColor(e.category)}22`,
-                    color: getCategoryColor(e.category), fontSize: "12px", fontWeight: "700",
+                    display: "inline-block",
+                    background: `${getCategoryColor(e.category)}22`,
+                    color: getCategoryColor(e.category),
+                    fontSize: "12px", fontWeight: "700",
                     padding: "4px 10px", borderRadius: "999px", marginBottom: "12px",
                   }}>{e.category}</div>
                   <h3 style={{ fontSize: "16px", fontWeight: "700", marginBottom: "12px", lineHeight: "1.4", color: theme.text }}>{e.title}</h3>
@@ -298,10 +334,14 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
                     </div>
                   </div>
                   <button style={{
-                    width: "100%", marginTop: "14px", padding: "10px", borderRadius: "999px", border: "none",
-                    background: hoveredCard === i ? "linear-gradient(135deg, #4facfe, #a78bfa)" : darkMode ? "#1e293b" : "#f1f5f9",
+                    width: "100%", marginTop: "14px", padding: "10px",
+                    borderRadius: "999px", border: "none",
+                    background: hoveredCard === i
+                      ? "linear-gradient(135deg, #4facfe, #a78bfa)"
+                      : darkMode ? "#1e293b" : "#f1f5f9",
                     color: hoveredCard === i ? "#fff" : theme.subtext,
-                    fontWeight: "700", fontSize: "14px", cursor: "pointer", transition: "all 0.3s ease",
+                    fontWeight: "700", fontSize: "14px", cursor: "pointer",
+                    transition: "all 0.3s ease",
                   }}
                     onClick={() => user ? onNavigate(`book-${e.id}`) : onNavigate("login")}
                   >
@@ -328,7 +368,8 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
                 fontSize: "14px", marginBottom: "8px", cursor: "pointer",
                 color: hoveredFooterLink === i ? "#4facfe" : "#94a3b8",
                 transform: hoveredFooterLink === i ? "translateX(6px)" : "translateX(0)",
-                transition: "all 0.25s ease", display: "flex", alignItems: "center", gap: "6px",
+                transition: "all 0.25s ease",
+                display: "flex", alignItems: "center", gap: "6px",
               }}
                 onMouseEnter={() => setHoveredFooterLink(i)}
                 onMouseLeave={() => setHoveredFooterLink(null)}
@@ -341,15 +382,16 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
           <div>
             <p style={{ fontWeight: "700", color: "#f1f5f9", marginBottom: "12px" }}>Contact</p>
             {[
-              { icon: "📧", text: "support@primepass.com.bd" },
-              { icon: "📞", text: "+880 1700-000000" },
+              { icon: "📧", text: "efadmd2@gmail.com.bd" },
+              { icon: "📞", text: "+880 171-4823157" },
               { icon: "🌏", text: "Dhaka, Bangladesh" },
             ].map((c, i) => (
               <p key={i} style={{
                 fontSize: "14px", marginBottom: "8px", cursor: "pointer",
                 color: hoveredContact === i ? "#4facfe" : "#94a3b8",
                 transform: hoveredContact === i ? "translateX(6px)" : "translateX(0)",
-                transition: "all 0.25s ease", display: "flex", alignItems: "center", gap: "8px",
+                transition: "all 0.25s ease",
+                display: "flex", alignItems: "center", gap: "8px",
               }}
                 onMouseEnter={() => setHoveredContact(i)}
                 onMouseLeave={() => setHoveredContact(null)}
@@ -358,7 +400,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
           </div>
         </div>
         <div style={{ borderTop: "1px solid #1e293b", paddingTop: "20px", textAlign: "center", fontSize: "13px" }}>
-          © 2026 PrimePass. All rights reserved. Made By EFAD
+          © 2026 PrimePass. All rights reserved. Made with ❤️ in Bangladesh.
         </div>
       </footer>
     </div>
