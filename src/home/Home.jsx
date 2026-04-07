@@ -32,7 +32,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
   };
 
   const categories = ["All", "Cricket", "Concert", "Movie", "Football", "Other"];
-  const navLinks = ["Events", "Movies", "Sports","Concerts", "Admin"];
+  const navLinks = ["Admin"];
 
   useEffect(() => { fetchEvents(); }, []);
 
@@ -395,7 +395,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
             {[
               { icon: "📧", text: "support@primepass.com.bd" },
               { icon: "📞", text: "+880 1700-000000" },
-              { icon: "📍", text: "Dhaka, Bangladesh" },
+              { icon: "🌏", text: "Dhaka, Bangladesh" },
             ].map((c, i) => (
               <p key={i} style={{
                 fontSize: "14px", marginBottom: "8px", cursor: "pointer",
