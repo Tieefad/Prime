@@ -32,7 +32,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
   };
 
   const categories = ["All", "Cricket", "Concert", "Movie", "Football", "Other"];
-  const navLinks = ["Events", "Movies", "Sports","Concerts", "Admin"];
+  const navLinks = ["Events", "Movies", "Sports", "Admin"];
 
   useEffect(() => { fetchEvents(); }, []);
 
@@ -75,7 +75,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
       color: isAdmin
         ? isHovered ? "#fff" : "#ef4444"
         : isHovered ? "#fff" : theme.subtext,
-      padding: isAdmin ? "6px 14px" : "6px 14px",
+      padding: "6px 14px",
       borderRadius: "999px",
       background: isAdmin
         ? isHovered ? "#ef4444" : "rgba(239,68,68,0.1)"
@@ -164,8 +164,19 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
                   </div>
                   <div style={{
                     padding: "8px 12px", cursor: "pointer", borderRadius: "8px",
+                    fontSize: "14px", color: theme.text,
+                    display: "flex", alignItems: "center", gap: "8px",
+                  }}
+                    onClick={() => { setUserMenuOpen(false); onNavigate("bookings"); }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? "#1e293b" : "#f1f5f9"}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                  >
+                    🎫 My Bookings
+                  </div>
+                  <div style={{
+                    padding: "8px 12px", cursor: "pointer", borderRadius: "8px",
                     fontSize: "14px", color: "#ef4444",
-                    display: "flex", alignItems: "center", gap: "8px"
+                    display: "flex", alignItems: "center", gap: "8px",
                   }}
                     onClick={handleLogout}
                     onMouseEnter={(e) => e.currentTarget.style.background = "rgba(239,68,68,0.1)"}
@@ -382,9 +393,9 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
           <div>
             <p style={{ fontWeight: "700", color: "#f1f5f9", marginBottom: "12px" }}>Contact</p>
             {[
-              { icon: "📧", text: "efadmd2@gmail.com.bd" },
-              { icon: "📞", text: "+880 171-4823157" },
-              { icon: "🌏", text: "Dhaka, Bangladesh" },
+              { icon: "📧", text: "support@primepass.com.bd" },
+              { icon: "📞", text: "+880 1700-000000" },
+              { icon: "📍", text: "Dhaka, Bangladesh" },
             ].map((c, i) => (
               <p key={i} style={{
                 fontSize: "14px", marginBottom: "8px", cursor: "pointer",
@@ -400,7 +411,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
           </div>
         </div>
         <div style={{ borderTop: "1px solid #1e293b", paddingTop: "20px", textAlign: "center", fontSize: "13px" }}>
-          © 2026 PrimePass. All rights reserved. Made with ❤️ in Bangladesh.
+          © 2026 PrimePass. All rights reserved. Made By EFAD.
         </div>
       </footer>
     </div>

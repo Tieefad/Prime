@@ -9,6 +9,7 @@ import Sports from "./components/Sports";
 import Concerts from "./components/Concerts";
 import Admin from "./admin/Admin";
 import Booking from "./pages/Booking";
+import BookingHistory from "./pages/BookingHistory";
 
 function App() {
   const [page, setPage] = useState("home");
@@ -49,10 +50,19 @@ function App() {
   return (
     <div style={{ width: "100%", minHeight: "100vh" }}>
       {page === "home" && (
-        <Home darkMode={darkMode} setDarkMode={setDarkMode} onNavigate={handleNavigate} user={user} />
+        <Home
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          onNavigate={handleNavigate}
+          user={user}
+        />
       )}
       {page === "login" && (
-        <Login darkMode={darkMode} onBack={() => handleNavigate("home")} onLoginSuccess={(u) => { setUser(u); handleNavigate("home"); }} />
+        <Login
+          darkMode={darkMode}
+          onBack={() => handleNavigate("home")}
+          onLoginSuccess={(u) => { setUser(u); handleNavigate("home"); }}
+        />
       )}
       {page === "events" && (
         <Events darkMode={darkMode} setDarkMode={setDarkMode} onNavigate={handleNavigate} user={user} />
@@ -68,6 +78,9 @@ function App() {
       )}
       {page === "admin" && (
         <Admin darkMode={darkMode} setDarkMode={setDarkMode} onNavigate={handleNavigate} user={user} />
+      )}
+      {page === "bookings" && (
+        <BookingHistory darkMode={darkMode} onNavigate={handleNavigate} user={user} />
       )}
       {eventId && (
         <Booking darkMode={darkMode} onNavigate={handleNavigate} eventId={eventId} user={user} />
