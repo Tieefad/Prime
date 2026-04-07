@@ -32,7 +32,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
   };
 
   const categories = ["All", "Cricket", "Concert", "Movie", "Football", "Other"];
-  const navLinks = ["Events", "Movies", "Sports", "Admin"];
+  const navLinks = ["Events", "Movies", "Sports","Concerts", "Admin"];
 
   useEffect(() => { fetchEvents(); }, []);
 
