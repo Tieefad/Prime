@@ -1,24 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Sun, Moon, Ticket, MapPin, Calendar, ChevronRight, Star, Search, LogOut, User } from "lucide-react";
+import { MapPin, Calendar, ChevronRight, Star, Search } from "lucide-react";
 import { db } from "../firebase";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import Navbar from "../components/Navbar";
 
 function Home({ darkMode, setDarkMode, onNavigate, user }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [btnHover, setBtnHover] = useState(false);
-  const [toggleHover, setToggleHover] = useState(false);
   const [hoveredCat, setHoveredCat] = useState(null);
-  const [signInHover, setSignInHover] = useState(false);
   const [hoveredFooterLink, setHoveredFooterLink] = useState(null);
   const [hoveredContact, setHoveredContact] = useState(null);
-  const [hoveredNavLink, setHoveredNavLink] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocus, setSearchFocus] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
 
   const theme = {
@@ -28,11 +23,9 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
     card: darkMode ? "#111827" : "#ffffff",
     cardBorder: darkMode ? "#1e293b" : "#e2e8f0",
     primary: "#4facfe",
-    navbar: darkMode ? "rgba(10,15,30,0.95)" : "rgba(255,255,255,0.95)",
   };
 
   const categories = ["All", "Cricket", "Concert", "Movie", "Football", "Other"];
-  const navLinks = ["Admin"];
 
   useEffect(() => { fetchEvents(); }, []);
 
@@ -52,41 +45,12 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
     return matchSearch && matchCat;
   });
 
-  const handleLogout = async () => {
-    await signOut(auth);
-    setUserMenuOpen(false);
-  };
-
   const getCategoryColor = (cat) => {
     const colors = {
       Cricket: "#10b981", Concert: "#8b5cf6",
       Movie: "#f59e0b", Football: "#3b82f6", Other: "#ec4899"
     };
     return colors[cat] || "#4facfe";
-  };
-
-  const getNavLinkStyle = (index, label) => {
-    const isHovered = hoveredNavLink === index;
-    const isAdmin = label === "Admin";
-    return {
-      cursor: "pointer",
-      fontSize: "14px",
-      fontWeight: "600",
-      color: isAdmin
-        ? isHovered ? "#fff" : "#ef4444"
-        : isHovered ? "#fff" : theme.subtext,
-      padding: "6px 14px",
-      borderRadius: "999px",
-      background: isAdmin
-        ? isHovered ? "#ef4444" : "rgba(239,68,68,0.1)"
-        : isHovered ? "linear-gradient(135deg, #4facfe, #a78bfa)" : "transparent",
-      border: isAdmin
-        ? `1.5px solid ${isHovered ? "#ef4444" : "rgba(239,68,68,0.3)"}`
-        : "1.5px solid transparent",
-      transform: isHovered ? "translateY(-2px)" : "translateY(0)",
-      transition: "all 0.25s ease",
-      boxShadow: isHovered && !isAdmin ? "0 4px 15px rgba(79,172,254,0.3)" : "none",
-    };
   };
 
   const getCardStyle = (index) => ({
@@ -101,113 +65,16 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
     <div style={{ fontFamily: "'Segoe UI', Arial, sans-serif", background: theme.background, color: theme.text, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
 
       {/* NAVBAR */}
-      <nav style={{
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-        padding: "14px 40px", background: theme.navbar, backdropFilter: "blur(12px)",
-        boxShadow: "0 1px 20px rgba(0,0,0,0.1)", position: "sticky", top: 0, zIndex: 1000,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }} onClick={() => onNavigate("home")}>
-          <Ticket size={22} color={theme.primary} />
-          <span style={{ fontSize: "22px", fontWeight: "800", background: "linear-gradient(135deg, #4facfe, #00f2fe)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>PrimePass</span>
-        </div>
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-          {navLinks.map((l, i) => (
-            <span key={i}
-              style={getNavLinkStyle(i, l)}
-              onMouseEnter={() => setHoveredNavLink(i)}
-              onMouseLeave={() => setHoveredNavLink(null)}
-              onClick={() => onNavigate(l.toLowerCase())}
-            >{l}</span>
-          ))}
-
-          <div style={{ width: "1px", height: "24px", background: theme.cardBorder, margin: "0 8px" }} />
-
-          <button style={{
-            width: "42px", height: "42px", borderRadius: "50%",
-            border: `2px solid ${darkMode ? "#1e293b" : "#e2e8f0"}`,
-            cursor: "pointer", background: darkMode ? "#1e293b" : "#f1f5f9",
-            color: darkMode ? "#fbbf24" : "#6366f1",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            transform: toggleHover ? "scale(1.1) rotate(15deg)" : "scale(1)",
-            transition: "all 0.3s ease",
-          }}
-            onClick={() => setDarkMode(!darkMode)}
-            onMouseEnter={() => setToggleHover(true)}
-            onMouseLeave={() => setToggleHover(false)}
-          >
-            {darkMode ? <Sun size={17} strokeWidth={2} /> : <Moon size={17} strokeWidth={2} />}
-          </button>
-
-          {user ? (
-            <div style={{ position: "relative" }}>
-              <div style={{
-                display: "flex", alignItems: "center", gap: "8px", cursor: "pointer",
-                padding: "8px 16px", borderRadius: "999px",
-                background: darkMode ? "#1e293b" : "#f1f5f9",
-                border: `1px solid ${theme.cardBorder}`,
-              }} onClick={() => setUserMenuOpen(!userMenuOpen)}>
-                <User size={16} color={theme.primary} />
-                <span style={{ fontSize: "14px", fontWeight: "600", color: theme.text }}>
-                  {user.displayName || user.email?.split("@")[0]}
-                </span>
-              </div>
-              {userMenuOpen && (
-                <div style={{
-                  position: "absolute", right: 0, top: "50px",
-                  background: theme.card, borderRadius: "12px",
-                  boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-                  border: `1px solid ${theme.cardBorder}`,
-                  padding: "8px", minWidth: "180px", zIndex: 100,
-                }}>
-                  <div style={{ padding: "8px 12px", fontSize: "13px", color: theme.subtext, borderBottom: `1px solid ${theme.cardBorder}`, marginBottom: "8px" }}>
-                    {user.email}
-                  </div>
-                  <div style={{
-                    padding: "8px 12px", cursor: "pointer", borderRadius: "8px",
-                    fontSize: "14px", color: theme.text,
-                    display: "flex", alignItems: "center", gap: "8px",
-                  }}
-                    onClick={() => { setUserMenuOpen(false); onNavigate("bookings"); }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? "#1e293b" : "#f1f5f9"}
-                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-                  >
-                    🎫 My Bookings
-                  </div>
-                  <div style={{
-                    padding: "8px 12px", cursor: "pointer", borderRadius: "8px",
-                    fontSize: "14px", color: "#ef4444",
-                    display: "flex", alignItems: "center", gap: "8px",
-                  }}
-                    onClick={handleLogout}
-                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(239,68,68,0.1)"}
-                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-                  >
-                    <LogOut size={14} /> Sign Out
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <button style={{
-              padding: "9px 22px", borderRadius: "999px", border: "none",
-              background: signInHover
-                ? "linear-gradient(135deg, #0ea5e9, #8b5cf6)"
-                : "linear-gradient(135deg, #4facfe, #a78bfa)",
-              color: "#fff", fontWeight: "700", fontSize: "14px", cursor: "pointer",
-              transform: signInHover ? "translateY(-2px) scale(1.05)" : "translateY(0) scale(1)",
-              transition: "all 0.3s ease",
-            }}
-              onClick={() => onNavigate("login")}
-              onMouseEnter={() => setSignInHover(true)}
-              onMouseLeave={() => setSignInHover(false)}
-            >Sign In</button>
-          )}
-        </div>
-      </nav>
+      <Navbar
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+        onNavigate={onNavigate}
+        user={user}
+      />
 
       {/* HERO */}
       <section style={{
-        padding: "80px 40px 60px", textAlign: "center",
+        padding: "80px 24px 60px", textAlign: "center",
         background: darkMode
           ? "linear-gradient(135deg, #0a0f1e 0%, #0f172a 50%, #1a1040 100%)"
           : "linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #ede9fe 100%)",
@@ -218,21 +85,21 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
           border: "1px solid rgba(79,172,254,0.3)", borderRadius: "999px",
           padding: "6px 16px", fontSize: "13px", color: theme.primary, fontWeight: "600", marginBottom: "24px",
         }}>
-          <Ticket size={13} /> Bangladesh's #1 Ticket Platform
+          🎫 Bangladesh's #1 Ticket Platform
         </div>
-        <h1 style={{ fontSize: "clamp(32px, 5vw, 58px)", fontWeight: "800", marginBottom: "16px", lineHeight: "1.15", letterSpacing: "-1px" }}>
+        <h1 style={{ fontSize: "clamp(28px, 5vw, 58px)", fontWeight: "800", marginBottom: "16px", lineHeight: "1.15", letterSpacing: "-1px" }}>
           Book Tickets for <br />
           <span style={{ background: "linear-gradient(135deg, #4facfe, #a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             Events in Dhaka
           </span>
         </h1>
-        <p style={{ fontSize: "18px", color: theme.subtext, maxWidth: "560px", margin: "0 auto 36px", lineHeight: "1.6" }}>
+        <p style={{ fontSize: "clamp(15px, 2vw, 18px)", color: theme.subtext, maxWidth: "560px", margin: "0 auto 36px", lineHeight: "1.6" }}>
           Cricket, Concerts, Movies & Sports — all in one place. Instant booking, real seats, zero hassle.
         </p>
 
         {/* SEARCH BAR */}
         <div style={{
-          display: "flex", alignItems: "center", gap: "12px",
+          display: "flex", alignItems: "center", gap: "8px",
           background: theme.card, borderRadius: "999px", padding: "8px 8px 8px 20px",
           maxWidth: "520px", margin: "0 auto",
           border: `1.5px solid ${searchFocus ? "#4facfe" : theme.cardBorder}`,
@@ -246,15 +113,16 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setSearchFocus(true)}
             onBlur={() => setSearchFocus(false)}
-            style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: "15px", color: theme.text }}
+            style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: "15px", color: theme.text, minWidth: 0 }}
           />
           <button style={{
-            padding: "10px 24px", borderRadius: "999px", border: "none",
+            padding: "10px 20px", borderRadius: "999px", border: "none",
             background: btnHover
               ? "linear-gradient(135deg, #0ea5e9, #8b5cf6)"
               : "linear-gradient(135deg, #4facfe, #a78bfa)",
             color: "#fff", fontWeight: "700", fontSize: "14px", cursor: "pointer",
             transform: btnHover ? "scale(1.05)" : "scale(1)", transition: "all 0.3s ease",
+            whiteSpace: "nowrap",
           }}
             onMouseEnter={() => setBtnHover(true)}
             onMouseLeave={() => setBtnHover(false)}
@@ -263,10 +131,10 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
       </section>
 
       {/* CATEGORIES */}
-      <div style={{ padding: "30px 40px 10px", display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
+      <div style={{ padding: "30px 24px 10px", display: "flex", justifyContent: "center", gap: "10px", flexWrap: "wrap" }}>
         {categories.map((c, i) => (
           <div key={i} style={{
-            padding: "8px 20px", borderRadius: "999px", cursor: "pointer",
+            padding: "8px 18px", borderRadius: "999px", cursor: "pointer",
             fontSize: "14px", fontWeight: "600",
             background: activeCategory === c
               ? "linear-gradient(135deg, #4facfe, #a78bfa)"
@@ -287,14 +155,15 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
       </div>
 
       {/* EVENTS */}
-      <section style={{ padding: "40px 40px 60px", flex: 1 }}>
+      <section style={{ padding: "40px 24px 60px", flex: 1 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
-          <span style={{ fontSize: "24px", fontWeight: "800", letterSpacing: "-0.5px" }}>
+          <span style={{ fontSize: "clamp(18px, 3vw, 24px)", fontWeight: "800", letterSpacing: "-0.5px" }}>
             🔥 {searchQuery ? `Results for "${searchQuery}"` : "Trending in Dhaka"}
           </span>
           <span style={{
             color: theme.primary, cursor: "pointer", fontSize: "14px",
-            fontWeight: "600", display: "flex", alignItems: "center", gap: "4px"
+            fontWeight: "600", display: "flex", alignItems: "center", gap: "4px",
+            whiteSpace: "nowrap",
           }} onClick={() => onNavigate("events")}>
             See all <ChevronRight size={14} />
           </span>
@@ -315,7 +184,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
             </p>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "24px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "24px" }}>
             {filteredEvents.map((e, i) => (
               <div key={e.id} style={getCardStyle(i)}
                 onMouseEnter={() => setHoveredCard(i)}
@@ -366,8 +235,8 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ background: darkMode ? "#060d1a" : "#0f172a", color: "#94a3b8", padding: "50px 40px 30px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "40px", marginBottom: "40px" }}>
+      <footer style={{ background: darkMode ? "#060d1a" : "#0f172a", color: "#94a3b8", padding: "50px 24px 30px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "40px", marginBottom: "40px" }}>
           <div>
             <div style={{ fontSize: "20px", fontWeight: "800", background: "linear-gradient(135deg, #4facfe, #00f2fe)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: "10px" }}>PrimePass</div>
             <p style={{ fontSize: "14px", lineHeight: "1.7" }}>Bangladesh's fastest ticket booking platform for events, movies, and sports.</p>
