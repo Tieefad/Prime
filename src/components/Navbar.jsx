@@ -18,7 +18,7 @@ function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
     navbar: darkMode ? "rgba(10,15,30,0.98)" : "rgba(255,255,255,0.98)",
   };
 
-  const navLinks = ["Events", "Movies", "Sports", "Admin"];
+  const navLinks = ["Admin"];
 
   const handleLogout = async () => {
     await signOut(auth);
