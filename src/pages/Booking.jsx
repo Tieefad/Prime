@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { db, auth } from "../firebase";
-import { doc, getDoc, updateDoc, addDoc, collection, serverTimestamp, arrayUnion } from "firebase/firestore";
+import { db } from "../firebase";
+import {
+  doc, getDoc, updateDoc, addDoc,
+  collection, serverTimestamp, arrayUnion
+} from "firebase/firestore";
 import { Ticket, MapPin, Calendar, Star, ArrowLeft, Check } from "lucide-react";
+import { sendBookingConfirmation } from "../utils/sendEmail";
 
 function Booking({ darkMode, onNavigate, eventId, user }) {
   const [event, setEvent] = useState(null);
@@ -10,6 +14,7 @@ function Booking({ darkMode, onNavigate, eventId, user }) {
   const [booking, setBooking] = useState(false);
   const [booked, setBooked] = useState(false);
   const [error, setError] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
 
   const theme = {
     background: darkMode ? "#0a0f1e" : "#f8fafc",
@@ -21,7 +26,10 @@ function Booking({ darkMode, onNavigate, eventId, user }) {
   };
 
   const getCategoryColor = (cat) => {
-    const colors = { Cricket: "#10b981", Concert: "#8b5cf6", Movie: "#f59e0b", Football: "#3b82f6", Other: "#ec4899" };
+    const colors = {
+      Cricket: "#10b981", Concert: "#8b5cf6",
+      Movie: "#f59e0b", Football: "#3b82f6", Other: "#ec4899"
+    };
     return colors[cat] || "#4facfe";
   };
 
@@ -76,6 +84,18 @@ function Booking({ darkMode, onNavigate, eventId, user }) {
         status: "confirmed",
         createdAt: serverTimestamp(),
       });
+
+      // Send confirmation email
+      const sent = await sendBookingConfirmation({
+        userEmail: user.email,
+        userName: user.displayName || user.email?.split("@")[0],
+        eventTitle: event.title,
+        eventLocation: event.location,
+        eventDate: event.date,
+        seats: selectedSeats,
+        totalAmount: selectedSeats.length * event.price,
+      });
+      setEmailSent(sent);
       setBooked(true);
       fetchEvent();
     } catch (err) {
@@ -105,29 +125,55 @@ function Booking({ darkMode, onNavigate, eventId, user }) {
 
   if (booked) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: theme.background, color: theme.text, padding: "20px" }}>
-      <div style={{ textAlign: "center", maxWidth: "400px" }}>
-        <div style={{ width: "80px", height: "80px", borderRadius: "50%", background: "linear-gradient(135deg, #10b981, #4facfe)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+      <div style={{ textAlign: "center", maxWidth: "420px", width: "100%" }}>
+        <div style={{
+          width: "80px", height: "80px", borderRadius: "50%",
+          background: "linear-gradient(135deg, #10b981, #4facfe)",
+          display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px",
+        }}>
           <Check size={40} color="#fff" strokeWidth={3} />
         </div>
         <h2 style={{ fontSize: "28px", fontWeight: "800", marginBottom: "12px" }}>Booking Confirmed! 🎉</h2>
         <p style={{ color: theme.subtext, marginBottom: "8px" }}>{event.title}</p>
-        <p style={{ color: theme.subtext, marginBottom: "8px" }}>📍 {event.location}</p>
+        <p style={{ color: theme.subtext, marginBottom: "8px" }}>🌏 {event.location}</p>
         <p style={{ color: theme.subtext, marginBottom: "8px" }}>📅 {event.date}</p>
-        <p style={{ color: theme.subtext, marginBottom: "24px" }}>💺 Seats: {selectedSeats.join(", ")}</p>
+        <p style={{ color: theme.subtext, marginBottom: "24px" }}>💺 Seats: {selectedSeats.sort((a, b) => a - b).join(", ")}</p>
+
         <div style={{
           background: darkMode ? "#1e293b" : "#f0fdf4", borderRadius: "12px",
-          padding: "16px", marginBottom: "24px",
-          border: "1px solid #10b981",
+          padding: "16px", marginBottom: "16px", border: "1px solid #10b981",
         }}>
           <p style={{ fontSize: "24px", fontWeight: "800", color: "#10b981" }}>৳ {selectedSeats.length * event.price}</p>
           <p style={{ fontSize: "13px", color: theme.subtext }}>Total Amount</p>
         </div>
+
+        {emailSent && (
+          <div style={{
+            background: darkMode ? "#1e293b" : "#eff6ff", borderRadius: "12px",
+            padding: "12px 16px", marginBottom: "16px",
+            border: "1px solid #4facfe",
+            display: "flex", alignItems: "center", gap: "8px",
+            justifyContent: "center",
+          }}>
+            <span style={{ fontSize: "18px" }}>📧</span>
+            <p style={{ fontSize: "13px", color: theme.primary, fontWeight: "600" }}>
+              Confirmation email sent to {user.email}
+            </p>
+          </div>
+        )}
+
         <button style={{
           width: "100%", padding: "14px", borderRadius: "999px", border: "none",
           background: "linear-gradient(135deg, #4facfe, #a78bfa)",
           color: "#fff", fontWeight: "700", fontSize: "16px", cursor: "pointer",
-          boxShadow: "0 4px 15px rgba(79,172,254,0.3)",
+          boxShadow: "0 4px 15px rgba(79,172,254,0.3)", marginBottom: "12px",
         }} onClick={() => onNavigate("home")}>Back to Home</button>
+
+        <button style={{
+          width: "100%", padding: "14px", borderRadius: "999px",
+          border: `1.5px solid ${theme.cardBorder}`, background: "transparent",
+          color: theme.text, fontWeight: "700", fontSize: "16px", cursor: "pointer",
+        }} onClick={() => onNavigate("bookings")}>View My Bookings</button>
       </div>
     </div>
   );
@@ -138,23 +184,33 @@ function Booking({ darkMode, onNavigate, eventId, user }) {
       {/* NAVBAR */}
       <nav style={{
         display: "flex", justifyContent: "space-between", alignItems: "center",
-        padding: "14px 40px", background: darkMode ? "rgba(10,15,30,0.95)" : "rgba(255,255,255,0.95)",
+        padding: "14px 24px",
+        background: darkMode ? "rgba(10,15,30,0.95)" : "rgba(255,255,255,0.95)",
         backdropFilter: "blur(12px)", boxShadow: "0 1px 20px rgba(0,0,0,0.1)",
         position: "sticky", top: 0, zIndex: 1000,
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }} onClick={() => onNavigate("home")}>
-          <Ticket size={22} color={theme.primary} />
-          <span style={{ fontSize: "22px", fontWeight: "800", background: "linear-gradient(135deg, #4facfe, #00f2fe)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>PrimePass</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <button style={{
+            width: "38px", height: "38px", borderRadius: "50%",
+            border: `2px solid ${theme.cardBorder}`,
+            background: "transparent", color: theme.subtext,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", transition: "all 0.25s ease",
+          }}
+            onClick={() => onNavigate("home")}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#4facfe"; e.currentTarget.style.color = "#4facfe"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = theme.cardBorder; e.currentTarget.style.color = theme.subtext; }}
+          >
+            <ArrowLeft size={17} />
+          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }} onClick={() => onNavigate("home")}>
+            <Ticket size={22} color={theme.primary} />
+            <span style={{ fontSize: "20px", fontWeight: "800", background: "linear-gradient(135deg, #4facfe, #00f2fe)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>PrimePass</span>
+          </div>
         </div>
-        <button style={{
-          display: "flex", alignItems: "center", gap: "6px",
-          padding: "8px 18px", borderRadius: "999px",
-          border: `1.5px solid ${theme.cardBorder}`,
-          background: "transparent", color: theme.text,
-          fontSize: "14px", fontWeight: "600", cursor: "pointer",
-        }} onClick={() => onNavigate("home")}>
-          <ArrowLeft size={16} /> Back
-        </button>
+        <span style={{ fontSize: "14px", color: theme.subtext }}>
+          {user?.displayName || user?.email?.split("@")[0]}
+        </span>
       </nav>
 
       <div style={{ maxWidth: "900px", margin: "0 auto", padding: "40px 20px" }}>
@@ -167,11 +223,13 @@ function Booking({ darkMode, onNavigate, eventId, user }) {
         }}>
           <div style={{ height: "6px", background: `linear-gradient(90deg, ${getCategoryColor(event.category)}, #4facfe)` }} />
           <div style={{ padding: "28px" }}>
-            <div style={{ display: "inline-block", background: `${getCategoryColor(event.category)}22`, color: getCategoryColor(event.category), fontSize: "12px", fontWeight: "700", padding: "4px 12px", borderRadius: "999px", marginBottom: "12px" }}>
-              {event.category}
-            </div>
-            <h1 style={{ fontSize: "clamp(22px, 3vw, 32px)", fontWeight: "800", marginBottom: "16px", lineHeight: "1.3" }}>{event.title}</h1>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginBottom: "16px" }}>
+            <div style={{
+              display: "inline-block", background: `${getCategoryColor(event.category)}22`,
+              color: getCategoryColor(event.category), fontSize: "12px", fontWeight: "700",
+              padding: "4px 12px", borderRadius: "999px", marginBottom: "12px",
+            }}>{event.category}</div>
+            <h1 style={{ fontSize: "clamp(20px, 3vw, 30px)", fontWeight: "800", marginBottom: "16px", lineHeight: "1.3" }}>{event.title}</h1>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginBottom: "20px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "6px", color: theme.subtext, fontSize: "14px" }}>
                 <MapPin size={16} color={theme.primary} /> {event.location}
               </div>
@@ -185,19 +243,21 @@ function Booking({ darkMode, onNavigate, eventId, user }) {
             {event.description && (
               <p style={{ color: theme.subtext, fontSize: "15px", lineHeight: "1.6" }}>{event.description}</p>
             )}
-            <div style={{ display: "flex", gap: "24px", marginTop: "20px", flexWrap: "wrap" }}>
-              <div style={{ background: darkMode ? "#1e293b" : "#f8fafc", borderRadius: "12px", padding: "16px 24px", textAlign: "center" }}>
-                <p style={{ fontSize: "24px", fontWeight: "800", color: theme.primary }}>৳ {event.price}</p>
-                <p style={{ fontSize: "12px", color: theme.subtext }}>Per Seat</p>
-              </div>
-              <div style={{ background: darkMode ? "#1e293b" : "#f8fafc", borderRadius: "12px", padding: "16px 24px", textAlign: "center" }}>
-                <p style={{ fontSize: "24px", fontWeight: "800", color: "#10b981" }}>{totalSeats - bookedSeats.length}</p>
-                <p style={{ fontSize: "12px", color: theme.subtext }}>Available Seats</p>
-              </div>
-              <div style={{ background: darkMode ? "#1e293b" : "#f8fafc", borderRadius: "12px", padding: "16px 24px", textAlign: "center" }}>
-                <p style={{ fontSize: "24px", fontWeight: "800", color: "#f59e0b" }}>{bookedSeats.length}</p>
-                <p style={{ fontSize: "12px", color: theme.subtext }}>Booked Seats</p>
-              </div>
+            <div style={{ display: "flex", gap: "16px", marginTop: "20px", flexWrap: "wrap" }}>
+              {[
+                { label: "Per Seat", value: `৳ ${event.price}`, color: theme.primary },
+                { label: "Available", value: totalSeats - bookedSeats.length, color: "#10b981" },
+                { label: "Booked", value: bookedSeats.length, color: "#f59e0b" },
+              ].map((s, i) => (
+                <div key={i} style={{
+                  background: darkMode ? "#1e293b" : "#f8fafc",
+                  borderRadius: "12px", padding: "16px 24px", textAlign: "center",
+                  flex: "1", minWidth: "100px",
+                }}>
+                  <p style={{ fontSize: "22px", fontWeight: "800", color: s.color }}>{s.value}</p>
+                  <p style={{ fontSize: "12px", color: theme.subtext }}>{s.label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -235,16 +295,23 @@ function Booking({ darkMode, onNavigate, eventId, user }) {
             marginBottom: "32px", letterSpacing: "2px",
           }}>STAGE / SCREEN</div>
 
-          {/* SEATS GRID */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: "8px", marginBottom: "24px" }}>
+          {/* SEATS */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(10, 1fr)",
+            gap: "8px", marginBottom: "24px",
+          }}>
             {Array.from({ length: totalSeats }, (_, i) => i + 1).map(seat => {
               const status = getSeatStatus(seat);
               return (
                 <div key={seat} onClick={() => toggleSeat(seat)} style={{
-                  aspectRatio: "1", borderRadius: "6px", display: "flex", alignItems: "center",
-                  justifyContent: "center", fontSize: "11px", fontWeight: "700",
+                  aspectRatio: "1", borderRadius: "6px",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "11px", fontWeight: "700",
                   cursor: status === "booked" ? "not-allowed" : "pointer",
-                  background: status === "booked" ? "#ef4444" : status === "selected" ? "#4facfe" : darkMode ? "#1e293b" : "#e2e8f0",
+                  background: status === "booked" ? "#ef4444"
+                    : status === "selected" ? "#4facfe"
+                    : darkMode ? "#1e293b" : "#e2e8f0",
                   color: status === "available" ? theme.subtext : "#fff",
                   transition: "all 0.2s ease",
                   transform: status === "selected" ? "scale(1.1)" : "scale(1)",
@@ -262,7 +329,9 @@ function Booking({ darkMode, onNavigate, eventId, user }) {
               border: "1px solid rgba(79,172,254,0.3)",
             }}>
               <p style={{ fontSize: "14px", color: theme.subtext, marginBottom: "4px" }}>
-                Selected Seats: <span style={{ color: theme.primary, fontWeight: "700" }}>{selectedSeats.sort((a,b)=>a-b).join(", ")}</span>
+                Selected Seats: <span style={{ color: theme.primary, fontWeight: "700" }}>
+                  {selectedSeats.sort((a, b) => a - b).join(", ")}
+                </span>
               </p>
               <p style={{ fontSize: "18px", fontWeight: "800", color: theme.primary }}>
                 Total: ৳ {selectedSeats.length * event.price}
@@ -271,26 +340,36 @@ function Booking({ darkMode, onNavigate, eventId, user }) {
           )}
         </div>
 
-        {/* BOOK BUTTON */}
+        {/* ERROR */}
         {error && (
-          <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", padding: "12px 16px", fontSize: "14px", color: "#ef4444", marginBottom: "16px", textAlign: "center" }}>
-            {error}
-          </div>
+          <div style={{
+            background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)",
+            borderRadius: "8px", padding: "12px 16px", fontSize: "14px",
+            color: "#ef4444", marginBottom: "16px", textAlign: "center",
+          }}>{error}</div>
         )}
 
+        {/* BOOK BUTTON */}
         <button style={{
           width: "100%", padding: "16px", borderRadius: "999px", border: "none",
           background: selectedSeats.length === 0
             ? darkMode ? "#1e293b" : "#e2e8f0"
             : "linear-gradient(135deg, #4facfe, #a78bfa)",
           color: selectedSeats.length === 0 ? theme.subtext : "#fff",
-          fontWeight: "700", fontSize: "18px", cursor: selectedSeats.length === 0 ? "not-allowed" : "pointer",
+          fontWeight: "700", fontSize: "18px",
+          cursor: selectedSeats.length === 0 ? "not-allowed" : "pointer",
           boxShadow: selectedSeats.length > 0 ? "0 8px 25px rgba(79,172,254,0.4)" : "none",
           transition: "all 0.3s ease",
           opacity: booking ? 0.7 : 1,
         }} onClick={handleBooking} disabled={booking || selectedSeats.length === 0}>
-          {booking ? "Processing..." : selectedSeats.length === 0 ? "Select seats to continue" : `Confirm Booking — ৳ ${selectedSeats.length * event.price}`}
+          {booking ? "Processing..." : selectedSeats.length === 0
+            ? "Select seats to continue"
+            : `Confirm Booking — ৳ ${selectedSeats.length * event.price}`}
         </button>
+
+        <p style={{ textAlign: "center", fontSize: "13px", color: theme.subtext, marginTop: "12px" }}>
+          📧 A confirmation email will be sent to {user?.email}
+        </p>
       </div>
     </div>
   );
