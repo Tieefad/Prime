@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Sun, Moon, Ticket, Menu, X, LogOut, User, ChevronRight } from "lucide-react";
+import { Sun, Moon, Menu, X, LogOut, User, ChevronRight } from "lucide-react";
 import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, ADMIN_EMAIL } from "../firebase";
 
 function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -9,16 +9,20 @@ function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
   const [toggleHover, setToggleHover] = useState(false);
   const [hoveredNavLink, setHoveredNavLink] = useState(null);
 
+  const isAdmin = user?.email === ADMIN_EMAIL;
+
   const theme = {
     text: darkMode ? "#f1f5f9" : "#0f172a",
     subtext: darkMode ? "#94a3b8" : "#64748b",
     card: darkMode ? "#111827" : "#ffffff",
     cardBorder: darkMode ? "#1e293b" : "#e2e8f0",
-    primary: "#4facfe",
-    navbar: darkMode ? "rgba(10,15,30,0.98)" : "rgba(255,255,255,0.98)",
+    primary: "#f59e0b",
+    navbar: darkMode ? "rgba(10,8,3,0.98)" : "rgba(255,255,255,0.98)",
   };
 
-  const navLinks = ["Admin"];
+  const navLinks = isAdmin
+    ? ["Events", "Movies", "Sports", "Admin"]
+    : ["Events", "Movies", "Sports"];
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -29,25 +33,25 @@ function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
 
   const getNavLinkStyle = (index, label) => {
     const isHovered = hoveredNavLink === index;
-    const isAdmin = label === "Admin";
+    const isAdminLink = label === "Admin";
     return {
       cursor: "pointer",
       fontSize: "14px",
       fontWeight: "600",
-      color: isAdmin
+      color: isAdminLink
         ? isHovered ? "#fff" : "#ef4444"
-        : isHovered ? "#fff" : theme.subtext,
+        : isHovered ? "#000" : theme.subtext,
       padding: "6px 14px",
       borderRadius: "999px",
-      background: isAdmin
+      background: isAdminLink
         ? isHovered ? "#ef4444" : "rgba(239,68,68,0.1)"
-        : isHovered ? "linear-gradient(135deg, #4facfe, #a78bfa)" : "transparent",
-      border: isAdmin
+        : isHovered ? "linear-gradient(135deg, #f59e0b, #fbbf24)" : "transparent",
+      border: isAdminLink
         ? `1.5px solid ${isHovered ? "#ef4444" : "rgba(239,68,68,0.3)"}`
         : "1.5px solid transparent",
       transform: isHovered ? "translateY(-2px)" : "translateY(0)",
       transition: "all 0.25s ease",
-      boxShadow: isHovered && !isAdmin ? "0 4px 15px rgba(79,172,254,0.3)" : "none",
+      boxShadow: isHovered && !isAdminLink ? "0 4px 15px rgba(245,158,11,0.3)" : "none",
     };
   };
 
@@ -55,14 +59,23 @@ function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
     <>
       <nav style={{
         display: "flex", justifyContent: "space-between", alignItems: "center",
-        padding: "14px 24px", background: theme.navbar, backdropFilter: "blur(12px)",
-        boxShadow: "0 1px 20px rgba(0,0,0,0.1)", position: "sticky", top: 0, zIndex: 1000,
+        padding: "14px 24px",
+        background: theme.navbar,
+        backdropFilter: "blur(12px)",
+        boxShadow: darkMode ? "0 1px 20px rgba(245,158,11,0.1)" : "0 1px 20px rgba(0,0,0,0.1)",
+        position: "sticky", top: 0, zIndex: 1000,
+        borderBottom: `1px solid ${darkMode ? "rgba(245,158,11,0.2)" : "#e2e8f0"}`,
       }}>
         {/* LOGO */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}
           onClick={() => { onNavigate("home"); setMenuOpen(false); }}>
-          <Ticket size={22} color={theme.primary} />
-          <span style={{ fontSize: "20px", fontWeight: "800", background: "linear-gradient(135deg, #4facfe, #00f2fe)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>PrimePass</span>
+          <span style={{ fontSize: "28px" }}>🐉</span>
+          <span style={{
+            fontSize: "20px", fontWeight: "900",
+            background: "linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            letterSpacing: "-0.5px",
+          }}>Dragon Piece</span>
         </div>
 
         {/* DESKTOP LINKS */}
@@ -80,8 +93,9 @@ function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
 
           <button style={{
             width: "42px", height: "42px", borderRadius: "50%",
-            border: `2px solid ${darkMode ? "#1e293b" : "#e2e8f0"}`,
-            cursor: "pointer", background: darkMode ? "#1e293b" : "#f1f5f9",
+            border: `2px solid ${darkMode ? "rgba(245,158,11,0.3)" : "#e2e8f0"}`,
+            cursor: "pointer",
+            background: darkMode ? "rgba(245,158,11,0.1)" : "#f1f5f9",
             color: darkMode ? "#fbbf24" : "#6366f1",
             display: "flex", alignItems: "center", justifyContent: "center",
             transform: toggleHover ? "scale(1.1) rotate(15deg)" : "scale(1)",
@@ -99,10 +113,10 @@ function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
               <div style={{
                 display: "flex", alignItems: "center", gap: "8px", cursor: "pointer",
                 padding: "8px 16px", borderRadius: "999px",
-                background: darkMode ? "#1e293b" : "#f1f5f9",
-                border: `1px solid ${theme.cardBorder}`,
+                background: darkMode ? "rgba(245,158,11,0.1)" : "#f1f5f9",
+                border: `1px solid ${darkMode ? "rgba(245,158,11,0.3)" : theme.cardBorder}`,
               }} onClick={() => setUserMenuOpen(!userMenuOpen)}>
-                <User size={16} color={theme.primary} />
+                <User size={16} color="#f59e0b" />
                 <span style={{ fontSize: "14px", fontWeight: "600", color: theme.text }}>
                   {user.displayName || user.email?.split("@")[0]}
                 </span>
@@ -112,7 +126,7 @@ function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
                   position: "absolute", right: 0, top: "50px",
                   background: theme.card, borderRadius: "12px",
                   boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-                  border: `1px solid ${theme.cardBorder}`,
+                  border: `1px solid ${darkMode ? "rgba(245,158,11,0.2)" : theme.cardBorder}`,
                   padding: "8px", minWidth: "180px", zIndex: 100,
                 }}>
                   <div style={{ padding: "8px 12px", fontSize: "13px", color: theme.subtext, borderBottom: `1px solid ${theme.cardBorder}`, marginBottom: "8px" }}>
@@ -146,8 +160,9 @@ function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
           ) : (
             <button style={{
               padding: "9px 22px", borderRadius: "999px", border: "none",
-              background: "linear-gradient(135deg, #4facfe, #a78bfa)",
-              color: "#fff", fontWeight: "700", fontSize: "14px", cursor: "pointer",
+              background: "linear-gradient(135deg, #f59e0b, #fbbf24)",
+              color: "#000", fontWeight: "700", fontSize: "14px", cursor: "pointer",
+              boxShadow: "0 4px 15px rgba(245,158,11,0.3)",
               transition: "all 0.3s ease",
             }} onClick={() => onNavigate("login")}>Sign In</button>
           )}
@@ -157,8 +172,9 @@ function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
         <div className="mobile-only" style={{ display: "none", alignItems: "center", gap: "12px" }}>
           <button style={{
             width: "38px", height: "38px", borderRadius: "50%",
-            border: `2px solid ${darkMode ? "#1e293b" : "#e2e8f0"}`,
-            cursor: "pointer", background: darkMode ? "#1e293b" : "#f1f5f9",
+            border: `2px solid ${darkMode ? "rgba(245,158,11,0.3)" : "#e2e8f0"}`,
+            cursor: "pointer",
+            background: darkMode ? "rgba(245,158,11,0.1)" : "#f1f5f9",
             color: darkMode ? "#fbbf24" : "#6366f1",
             display: "flex", alignItems: "center", justifyContent: "center",
             transition: "all 0.3s ease",
@@ -167,7 +183,7 @@ function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
           </button>
           <button style={{
             width: "38px", height: "38px", borderRadius: "50%",
-            border: `2px solid ${theme.cardBorder}`,
+            border: `2px solid ${darkMode ? "rgba(245,158,11,0.3)" : "#e2e8f0"}`,
             cursor: "pointer", background: "transparent", color: theme.text,
             display: "flex", alignItems: "center", justifyContent: "center",
           }} onClick={() => setMenuOpen(!menuOpen)}>
@@ -184,15 +200,19 @@ function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
           zIndex: 999, padding: "24px",
           display: "flex", flexDirection: "column", gap: "8px",
           overflowY: "auto",
+          borderTop: `1px solid ${darkMode ? "rgba(245,158,11,0.2)" : "#e2e8f0"}`,
         }}>
           {navLinks.map((l, i) => (
             <button key={i} style={{
               padding: "14px 20px", borderRadius: "12px", border: "none",
-              background: l === "Admin" ? "rgba(239,68,68,0.1)" : darkMode ? "#1e293b" : "#f1f5f9",
+              background: l === "Admin"
+                ? "rgba(239,68,68,0.1)"
+                : darkMode ? "rgba(245,158,11,0.05)" : "#f1f5f9",
               color: l === "Admin" ? "#ef4444" : theme.text,
               fontWeight: "700", fontSize: "16px", cursor: "pointer",
               textAlign: "left", transition: "all 0.2s ease",
               display: "flex", alignItems: "center", justifyContent: "space-between",
+              border: `1px solid ${darkMode ? "rgba(245,158,11,0.1)" : "#e2e8f0"}`,
             }}
               onClick={() => { onNavigate(l.toLowerCase()); setMenuOpen(false); }}
             >
@@ -200,18 +220,23 @@ function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
             </button>
           ))}
 
-          <div style={{ height: "1px", background: theme.cardBorder, margin: "8px 0" }} />
+          <div style={{ height: "1px", background: darkMode ? "rgba(245,158,11,0.2)" : "#e2e8f0", margin: "8px 0" }} />
 
           {user ? (
             <>
-              <div style={{ padding: "12px 20px", borderRadius: "12px", background: darkMode ? "#1e293b" : "#f1f5f9" }}>
+              <div style={{
+                padding: "12px 20px", borderRadius: "12px",
+                background: darkMode ? "rgba(245,158,11,0.05)" : "#f1f5f9",
+                border: `1px solid ${darkMode ? "rgba(245,158,11,0.1)" : "#e2e8f0"}`,
+              }}>
                 <div style={{ fontSize: "13px", color: theme.subtext, marginBottom: "4px" }}>Signed in as</div>
                 <div style={{ fontSize: "15px", fontWeight: "700", color: theme.text }}>{user.displayName || user.email?.split("@")[0]}</div>
                 <div style={{ fontSize: "12px", color: theme.subtext }}>{user.email}</div>
               </div>
               <button style={{
-                padding: "14px 20px", borderRadius: "12px", border: "none",
-                background: darkMode ? "#1e293b" : "#f1f5f9",
+                padding: "14px 20px", borderRadius: "12px",
+                border: `1px solid ${darkMode ? "rgba(245,158,11,0.1)" : "#e2e8f0"}`,
+                background: darkMode ? "rgba(245,158,11,0.05)" : "#f1f5f9",
                 color: theme.text, fontWeight: "700", fontSize: "16px", cursor: "pointer",
                 textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between",
               }}
@@ -231,9 +256,9 @@ function Navbar({ darkMode, setDarkMode, onNavigate, user }) {
           ) : (
             <button style={{
               padding: "14px 20px", borderRadius: "12px", border: "none",
-              background: "linear-gradient(135deg, #4facfe, #a78bfa)",
-              color: "#fff", fontWeight: "700", fontSize: "16px", cursor: "pointer",
-              boxShadow: "0 4px 15px rgba(79,172,254,0.3)",
+              background: "linear-gradient(135deg, #f59e0b, #fbbf24)",
+              color: "#000", fontWeight: "700", fontSize: "16px", cursor: "pointer",
+              boxShadow: "0 4px 15px rgba(245,158,11,0.3)",
             }} onClick={() => { onNavigate("login"); setMenuOpen(false); }}>
               Sign In
             </button>

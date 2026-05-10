@@ -80,7 +80,12 @@ function App() {
         <Admin darkMode={darkMode} setDarkMode={setDarkMode} onNavigate={handleNavigate} user={user} />
       )}
       {page === "bookings" && (
-        <BookingHistory darkMode={darkMode} onNavigate={handleNavigate} user={user} />
+            <BookingHistory
+            darkMode={darkMode}
+            setDarkMode={setDarkMode}
+            onNavigate={handleNavigate}
+            user={user}
+        />
       )}
       {eventId && (
         <Booking darkMode={darkMode} onNavigate={handleNavigate} eventId={eventId} user={user} />
