@@ -325,7 +325,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
                     <MapPin size={13} /> {e.location}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: theme.subtext, marginBottom: "16px" }}>
-                    <Calendar size={13} /> {e.date}
+                    {new Date(e.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) || e.date}
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
                     <span style={{ fontSize: "20px", fontWeight: "800", color: "#f59e0b" }}>৳ {e.price}</span>
