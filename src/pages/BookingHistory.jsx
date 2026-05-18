@@ -17,24 +17,28 @@ function BookingHistory({ darkMode, setDarkMode, onNavigate, user }) {
     primary: "#f59e0b",
   };
 
-  useEffect(() => {
-    if (user) fetchBookings();
-    else setLoading(false);
-  }, [user]);
-
-  const fetchBookings = async () => {
-    setLoading(true);
-    try {
-      const q = query(
-        collection(db, "bookings"),
-        where("userId", "==", user.uid),
-        orderBy("createdAt", "desc")
-      );
-      const snap = await getDocs(q);
-      setBookings(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    } catch (err) { console.error(err); }
-    setLoading(false);
-  };
+ const fetchBookings = async () => {
+  setLoading(true);
+  try {
+    const q = query(
+      collection(db, "bookings"),
+      where("userId", "==", user.uid)
+    );
+    const snap = await getDocs(q);
+    const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Sort by date manually
+    data.sort((a, b) => {
+      const aTime = a.createdAt?.seconds || 0;
+      const bTime = b.createdAt?.seconds || 0;
+      return bTime - aTime;
+    });
+    setBookings(data);
+    console.log("Bookings found:", data.length);
+  } catch (err) {
+    console.error("Booking fetch error:", err);
+  }
+  setLoading(false);
+};
 
   return (
     <div style={{
