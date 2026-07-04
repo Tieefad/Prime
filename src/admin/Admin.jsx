@@ -166,7 +166,7 @@ function Admin({ darkMode, setDarkMode, onNavigate, user }) {
           {/* LOGO */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }} onClick={() => onNavigate("home")}>
             <Ticket size={22} color={theme.primary} />
-            <span style={{ fontSize: "22px", fontWeight: "800", background: "linear-gradient(135deg, #4facfe, #00f2fe)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>PrimePass</span>
+            <span style={{ fontSize: "22px", fontWeight: "800", background: "linear-gradient(135deg, #4facfe, #00f2fe)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>DragonPiece</span>
             <span style={{ fontSize: "12px", fontWeight: "700", background: "#ef4444", color: "#fff", padding: "2px 8px", borderRadius: "999px" }}>ADMIN</span>
           </div>
         </div>
