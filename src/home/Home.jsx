@@ -26,7 +26,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
     gold: "#fbbf24",
   };
 
-  const categories = ["All", "Cricket", "Concert", "Movie", "Football"];
+  
 
   const bgImages = [
     "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&q=80",
