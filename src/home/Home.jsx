@@ -26,7 +26,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
     gold: "#fbbf24",
   };
 
-  const categories = ["All", "Cricket", "Concert", "Movie", "Football", "Other"];
+  const categories = ["All", "Cricket", "Concert", "Movie", "Football"];
 
   const bgImages = [
     "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&q=80",
@@ -34,6 +34,11 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
     "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=1920&q=80",
     "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1920&q=80",
     "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1920&q=80",
+    "https://images.unsplash.com/photo-1496208612508-eb52fba7d94e?w=1920&q=85",
+    "https://images.unsplash.com/photo-1570702148559-e1e6d62a0eb2?w=1920&q=85",
+    "https://images.unsplash.com/photo-1756310588960-d629942323cd?w=1920&q=85",
+    "https://images.unsplash.com/photo-1763645468036-0cfb9740b327?w=1920&q=85",
+    "https://images.unsplash.com/photo-1643753072748-cac34c448e3f?w=1920&q=85",
   ];
 
   useEffect(() => {
@@ -154,7 +159,7 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
             backdropFilter: "blur(8px)",
             animation: "slideUp 0.8s ease forwards",
           }}>
-            🐉 Bangladesh's #1 Entertainment Platform
+            🐉Welcome to Our Entertainment Platform
           </div>
 
           <h1 style={{
@@ -166,14 +171,14 @@ function Home({ darkMode, setDarkMode, onNavigate, user }) {
             color: "#fff",
             animation: "slideUp 0.8s ease 0.1s forwards",
           }}>
-            Book Tickets for<br />
+            EVENTS IN<br />
             <span style={{
               background: "linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundSize: "200% auto",
             }}>
-              Events in Dhaka
+              DHAKA
             </span>
           </h1>
 
